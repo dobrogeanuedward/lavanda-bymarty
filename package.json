@@ -1,0 +1,16 @@
+{
+  "name": "lavanda-bymarty",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Lavanda — rivista antropologica e filosofica di Martina",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/check.mjs",
+    "dev": "node --env-file-if-exists=.env scripts/dev.mjs",
+    "test": "node --test tests/*.test.mjs"
+  }
+}

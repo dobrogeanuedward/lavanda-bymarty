@@ -1,0 +1,16 @@
+{
+  "title": "Il ritmo perduto",
+  "number": "00",
+  "status": "Primo studio editoriale",
+  "published": false,
+  "subtitle": "Ciclicità, simbolo e politica",
+  "description": "Una prima architettura per la digital fanzine di Lavanda. Il manifesto originale guida tre studi di sviluppo da leggere e discutere con Martina.",
+  "coverImage": "/assets/manifesto.webp",
+  "articles": [
+    "il-ritmo-perduto",
+    "mappe-dell-unita",
+    "larte-di-sciogliere",
+    "il-tempo-dei-corpi"
+  ],
+  "note": "Studio del numero zero. Nessuna uscita o data di pubblicazione annunciata. La scheda naturopatica citata nel sommario originale non è presente nel documento fornito e non è stata inventata."
+}

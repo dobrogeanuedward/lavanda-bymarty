@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1600" height="1320" viewBox="0 0 1600 1320">
+<rect width="1600" height="1320" fill="white"/>
+<text x="64" y="58" font-family="Nimbus Sans" font-size="20">Lavanda / Studio iniziale</text><text x="1536" y="58" text-anchor="end" font-family="Nimbus Sans" font-size="20">Direzione 01 · Il ritorno al centro</text>
+<line x1="64" y1="85" x2="1536" y2="85" stroke="black"/>
+<image x="64" y="128" width="900" height="175" xlink:href="logo.svg"/>
+<text x="88" y="349" font-family="P052" font-size="31">The riot witch</text>
+<text x="1038" y="169" font-family="P052" font-size="46">Il ritmo perduto.</text>
+<text x="1040" y="219" font-family="Nimbus Sans" font-size="22">Il cerchio aperto, la pausa, il ritorno.</text>
+<text x="1040" y="251" font-family="Nimbus Sans" font-size="22">Una prima interpretazione editoriale</text>
+<text x="1040" y="283" font-family="Nimbus Sans" font-size="22">precedente alla bozza di Martina.</text>
+<rect x="80" y="390" width="154" height="56" fill="#000000"/><rect x="258" y="390" width="154" height="56" fill="#8093F1"/><rect x="436" y="390" width="154" height="56" fill="#9FFFCB"/><rect x="614" y="390" width="154" height="56" fill="#FFD60A"/><rect x="792" y="390" width="154" height="56" fill="#FDC5F5"/>
+<image x="1040" y="390" width="42" height="42" xlink:href="../icons/ciclo.svg"/><image x="1116" y="390" width="42" height="42" xlink:href="../icons/botanica.svg"/><image x="1192" y="390" width="42" height="42" xlink:href="../icons/arcani.svg"/><image x="1268" y="390" width="42" height="42" xlink:href="../icons/alchimia.svg"/><image x="1344" y="390" width="42" height="42" xlink:href="../icons/corrispondenze.svg"/><image x="1420" y="390" width="42" height="42" xlink:href="../icons/lettura.svg"/>
+<image x="64" y="490" width="1000" height="667" xlink:href="../assets/manifesto.webp" preserveAspectRatio="xMidYMid slice"/>
+<rect x="1096" y="490" width="440" height="667" fill="#8093F1"/>
+<image x="1112" y="500" width="408" height="647" xlink:href="../assets/tarot.webp" preserveAspectRatio="xMidYMid meet"/>
+<text x="64" y="1202" font-family="Nimbus Sans" font-size="22">Studio fotografico / Luce, vetro, botanica</text>
+<text x="1096" y="1202" font-family="Nimbus Sans" font-size="22">Il Matto / Primo arcano originale</text>
+<text x="64" y="1270" font-family="P052" font-size="30">Buon ritorno al centro.</text>
+<text x="1536" y="1270" text-anchor="end" font-family="Nimbus Sans" font-size="18">Prima proposta di lavoro · Immagini generative</text>
+</svg>

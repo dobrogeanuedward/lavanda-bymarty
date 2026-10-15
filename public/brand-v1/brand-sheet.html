@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#8093F1">
+  <title>LAVANDA — Prima direzione visiva</title>
+  <style>
+    :root{color-scheme:light;--black:#000;--white:#fff;--periwinkle:#8093f1;--mint:#9fffcb;--yellow:#ffd60a;--pink:#fdc5f5}
+    *{box-sizing:border-box}html{background:var(--white);color:var(--black)}body{margin:0;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.55}a{color:inherit;text-underline-offset:.2em}a:focus-visible{outline:3px solid var(--periwinkle);outline-offset:5px}img{display:block;max-width:100%}.sheet{max-width:1500px;margin:auto;padding:38px 6vw 60px}.folio{display:flex;justify-content:space-between;gap:24px;font-size:13px;border-bottom:1px solid;padding-bottom:16px;margin-bottom:42px}.folio p{margin:0}.muted{opacity:.6}.masthead{padding:44px 0 70px}.masthead img{width:100%}.intro{display:grid;grid-template-columns:1.2fr 1fr;gap:8vw;padding:0 0 60px}.intro h1{font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:clamp(42px,5vw,70px);line-height:1.03;letter-spacing:-.04em;margin:0}.intro p{max-width:53ch;margin:0 0 14px}.intro small{font-size:13px}.contrast{background:var(--black);color:var(--white);padding:58px 5vw}.contrast img{width:100%}.contrast .caption{display:flex;justify-content:space-between;margin-top:30px;font-size:12px;gap:30px}.caption p{margin:0;max-width:56ch}.signature{font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:24px!important;line-height:1.1;white-space:nowrap}.section-top{display:grid;grid-template-columns:1fr 1fr;gap:8vw;margin-bottom:36px}.section-top h2{font:400 clamp(35px,4vw,56px)/1.1 Georgia,'Times New Roman',serif;letter-spacing:-.035em;margin:0}.section-top p{max-width:54ch;margin:0}.architecture{display:grid;grid-template-columns:1fr 1fr;gap:8vw;margin:50px 0 38px;align-items:center}.architecture .emblem-box{background:var(--periwinkle);min-height:360px;display:grid;place-items:center}.emblem-box img{width:190px}.architecture h3{font-family:Georgia,'Times New Roman',serif;font-size:32px;font-weight:400;line-height:1.15;margin:0 0 20px}.architecture p{max-width:52ch;margin:0 0 15px}.swatches{display:grid;grid-template-columns:repeat(6,1fr);border:1px solid var(--black)}.swatch{min-width:0;min-height:210px;display:flex;flex-direction:column;justify-content:space-between;padding:20px 16px}.swatch p{margin:0;font-size:14px}.swatch code{font:12px Arial,Helvetica,sans-serif}.swatch small{display:block;font-size:11px;max-width:16ch;line-height:1.4;margin-top:8px}.black{background:#000;color:#fff}.white{background:#fff;color:#000}.periwinkle{background:var(--periwinkle)}.mint{background:var(--mint)}.yellow{background:var(--yellow)}.pink{background:var(--pink)}.color-note{font-size:13px;max-width:90ch;margin:20px 0 0}.icons{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid;margin-top:40px}.icon{display:grid;grid-template-columns:64px 1fr;gap:24px;padding:30px 20px 30px 0;border-bottom:1px solid;align-items:center}.icon img{width:48px;height:48px}.icon h3{font-size:16px;font-weight:400;margin:0 0 4px}.icon p{margin:0;font-size:12px;max-width:25ch;opacity:.65}.rules{display:grid;grid-template-columns:1fr 1fr;gap:8vw;margin-top:48px}.rules h3{font:400 28px/1.2 Georgia,'Times New Roman',serif;margin:0 0 18px}.rules p{font-size:13px;margin:0 0 12px;max-width:57ch}.sizes{border-collapse:collapse;width:100%;font-size:13px}.sizes th,.sizes td{text-align:left;border-bottom:1px solid #0003;padding:10px 10px 10px 0}.sizes th{font-weight:400;opacity:.6}.footer{display:flex;justify-content:space-between;gap:24px;border-top:1px solid;margin-top:50px;padding-top:15px;font-size:12px}.footer p{margin:0}.divider{height:14px;background:linear-gradient(90deg,var(--periwinkle) 0 25%,var(--mint) 25% 50%,var(--yellow) 50% 75%,var(--pink) 75% 100%)}
+    @media(max-width:760px){.sheet{padding:24px 6vw 40px}.folio{font-size:11px;margin-bottom:24px}.masthead{padding:28px 0 42px}.intro,.section-top,.architecture,.rules{grid-template-columns:1fr;gap:25px}.intro{padding-bottom:35px}.contrast{padding:35px 6vw}.contrast .caption{flex-direction:column;gap:20px}.architecture .emblem-box{min-height:270px}.swatches{grid-template-columns:repeat(3,1fr)}.swatch{min-height:180px}.icons{grid-template-columns:1fr 1fr}.icon{grid-template-columns:40px 1fr;gap:15px}.icon img{width:36px;height:36px}.icon p{font-size:11px}.footer{font-size:11px}.signature{font-size:20px!important}}
+    @media(max-width:420px){.icons{grid-template-columns:1fr}.swatch{padding:14px 10px;min-height:160px}.swatch p{font-size:12px}.swatch code{font-size:10px}.footer{flex-direction:column;gap:6px}}
+    @page{size:A4 landscape;margin:12mm}
+    @media print{html,body{width:auto;font-size:10pt;print-color-adjust:exact;-webkit-print-color-adjust:exact}.sheet{max-width:none;padding:0;break-after:page}.sheet:last-of-type{break-after:auto}.folio{font-size:8pt;padding-bottom:3mm;margin-bottom:6mm}.masthead{padding:5mm 0 10mm}.intro{grid-template-columns:1.1fr 1fr;gap:18mm;padding-bottom:8mm}.intro h1{font-size:36pt}.intro p{font-size:9pt;line-height:1.45}.intro small{font-size:8pt}.contrast{padding:10mm 12mm}.contrast .caption{margin-top:5mm;font-size:7pt}.signature{font-size:14pt!important}.section-top{margin-bottom:7mm;gap:18mm}.section-top h2{font-size:31pt}.section-top p{font-size:9pt}.architecture{margin:8mm 0;gap:18mm}.architecture .emblem-box{min-height:60mm}.emblem-box img{width:36mm}.architecture h3{font-size:21pt;margin-bottom:4mm}.architecture p{font-size:9pt;line-height:1.45;margin-bottom:3mm}.swatch{min-height:44mm;padding:4mm}.swatch p{font-size:9pt}.swatch code{font-size:8pt}.swatch small{font-size:7pt}.color-note{font-size:8pt;margin-top:4mm}.icons{margin-top:8mm}.icon{grid-template-columns:12mm 1fr;gap:5mm;padding:7mm 4mm 7mm 0}.icon img{width:10mm;height:10mm}.icon h3{font-size:10pt}.icon p{font-size:8pt}.rules{gap:18mm;margin-top:8mm}.rules h3{font-size:19pt;margin-bottom:4mm}.rules p,.sizes{font-size:8pt}.sizes th,.sizes td{padding:2.5mm 2mm 2.5mm 0}.footer{margin-top:8mm;padding-top:3mm;font-size:7pt}.divider{display:none}a{text-decoration:none}}
+  </style>
+</head>
+<body>
+  <main>
+    <section class="sheet">
+      <div class="folio"><p>LAVANDA / Identità visiva</p><p>Prima direzione · Ottobre 2026</p></div>
+      <div class="masthead"><img src="logo.svg" alt="LAVANDA, il logotipo e il suo emblema"></div>
+      <div class="intro">
+        <h1>Il ritorno<br>al centro.</h1>
+        <div><p>Una rivista che attraversa antropologia, filosofia, botanica e linguaggi del simbolo. Un'identità costruita attorno al ciclo, all'apertura e alla relazione fra opposti.</p><p>Nero e bianco definiscono i poli. Il colore abita lo spazio nel mezzo.</p><small>Direzione proposta a partire dal manifesto di Martina. Il tono editoriale resta da definire insieme.</small></div>
+      </div>
+      <div class="contrast"><img src="logo-inverse.svg" alt="LAVANDA in bianco su fondo nero"><div class="caption"><p>Stesso segno, polarità inversa. Il contrasto è parte della costruzione, senza effetti, ombre o ornamenti.</p><p class="signature">The riot witch</p></div></div>
+      <div class="footer"><p>Marchio originale a tracciati vettoriali.</p><p>Proposta iniziale / Da discutere con Martina</p></div>
+    </section>
+    <div class="divider" aria-hidden="true"></div>
+    <section class="sheet">
+      <div class="folio"><p>LAVANDA / Segno e colore</p><p>Il centro, i poli, il passaggio</p></div>
+      <div class="section-top"><h2>Un ciclo aperto.</h2><p>Due archi sfalsati circondano un punto. La forma contiene un ritorno e un'interruzione: non chiude il movimento in un anello perfetto.</p></div>
+      <div class="architecture"><div class="emblem-box"><img src="emblem.svg" alt="Due archi aperti e sfalsati attorno a un punto centrale"></div><div><h3>Un segno contemporaneo,<br>disegnato per LAVANDA.</h3><p>Il punto non è un vertice. Gli archi hanno la stessa forma e si incontrano attraverso lo spazio vuoto. Il simbolo nasce dal contenuto del progetto, senza imitare un sigillo storico.</p><p>Nel logotipo, le geometrie di A e V dialogano con la curva della D. Tutte le lettere sono tracciati originali: nessun font necessario per riprodurre il marchio.</p></div></div>
+      <div class="swatches" aria-label="Palette cromatica">
+        <div class="swatch black"><p>Nero<small>Testo, ombra, densità.</small></p><code>#000000</code></div>
+        <div class="swatch white"><p>Bianco<small>Pagina, respiro, apertura.</small></p><code>#FFFFFF</code></div>
+        <div class="swatch periwinkle"><p>Pervinca<small>Riconoscimento e passaggio.</small></p><code>#8093F1</code></div>
+        <div class="swatch mint"><p>Menta<small>Materia vivente e relazione.</small></p><code>#9FFFCB</code></div>
+        <div class="swatch yellow"><p>Giallo<small>Nota, richiamo, luce.</small></p><code>#FFD60A</code></div>
+        <div class="swatch pink"><p>Rosa<small>Corpo e sensibilità.</small></p><code>#FDC5F5</code></div>
+      </div>
+      <p class="color-note">Nero sui colori chiari; bianco sul nero. Un colore dominante per composizione. Queste associazioni sono scelte grafiche del progetto, non corrispondenze esoteriche universali.</p>
+      <div class="footer"><p>Tagline esistente: The riot witch.</p><p>Il ritorno al centro è la direzione compositiva proposta.</p></div>
+    </section>
+    <div class="divider" aria-hidden="true"></div>
+    <section class="sheet">
+      <div class="folio"><p>LAVANDA / Strumenti di orientamento</p><p>Icone e uso essenziale</p></div>
+      <div class="section-top"><h2>Una grammatica<br>che resta leggibile.</h2><p>Sei icone originali per attraversare i contenuti. La stessa griglia e lo stesso tratto accompagnano aree di ricerca diverse, senza trasformare ogni elemento in un simbolo da decifrare.</p></div>
+      <div class="icons">
+        <div class="icon"><img src="../icons/ciclo.svg" alt=""><div><h3>Ciclo</h3><p>Ritmi, ritorno, trasformazione.</p></div></div>
+        <div class="icon"><img src="../icons/botanica.svg" alt=""><div><h3>Botanica</h3><p>Lo stelo e la materia vivente.</p></div></div>
+        <div class="icon"><img src="../icons/arcani.svg" alt=""><div><h3>Arcani</h3><p>Tarocchi e lettura archetipica.</p></div></div>
+        <div class="icon"><img src="../icons/alchimia.svg" alt=""><div><h3>Alchimia</h3><p>Il recipiente e la trasformazione.</p></div></div>
+        <div class="icon"><img src="../icons/corrispondenze.svg" alt=""><div><h3>Corrispondenze</h3><p>Nodi e relazioni fra sistemi.</p></div></div>
+        <div class="icon"><img src="../icons/lettura.svg" alt=""><div><h3>Lettura</h3><p>Blog, testi, digital fanzine.</p></div></div>
+      </div>
+      <div class="rules"><div><h3>Spazio prima del decoro.</h3><p>Lasciare un margine libero attorno al marchio. Non deformare il logotipo, chiudere gli archi o spostare il punto. Su fotografia, scegliere un campo uniforme o inserire una zona dedicata.</p><p>Le icone sono disegni contemporanei. Il diagramma Corrispondenze non riproduce l'Albero della Vita; la carta Arcani non riproduce un arcano tradizionale.</p><p>Griglia icone: 32 × 32. Tratto: 1,5. Usare una parola accanto all'icona quando serve orientare la lettura.</p></div><div><h3>Dimensioni minime</h3><table class="sizes"><thead><tr><th>Elemento</th><th>Schermo</th><th>Stampa</th></tr></thead><tbody><tr><td>Logo completo</td><td>180 px</td><td>40 mm</td></tr><tr><td>Solo logotipo</td><td>140 px</td><td>30 mm</td></tr><tr><td>Emblema</td><td>24 px</td><td>7 mm</td></tr><tr><td>Icone</td><td>24 px</td><td>6 mm</td></tr></tbody></table><p style="margin-top:16px">Per la favicon a 16–23 px è prevista una versione semplificata. I valori indicano la larghezza.</p></div></div>
+      <div class="footer"><p>Guida completa: docs/brand-system.md</p><p>SVG scalabili / Nero, inverso e accento pervinca</p></div>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 830 160" role="img" aria-labelledby="title desc">
+<title id="title">LAVANDA</title><desc id="desc">Marchio originale: due archi aperti e sfalsati attorno a un punto, accanto al logotipo LAVANDA disegnato a tracciati.</desc>
+<g transform="translate(6 9) scale(.88)"><g fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="butt">
+  <path d="M28 77C22 44 43 13 76 10C109 7 138 31 140 65"/>
+  <path d="M124 73C130 106 109 137 76 140C43 143 14 119 12 85"/>
+</g><circle cx="76" cy="75" r="7" fill="#ffffff"/></g>
+<g transform="translate(180 34)"><path transform="translate(0 0)" d="M0 0H29V4H21V95H51Q59 95 65 78H69L66 100H0V96H8V4H0Z" fill="#ffffff" fill-rule="evenodd"/>
+<path transform="translate(72 0)" d="M0 100V96H7L41 0H47L82 96H90V100H57V96H65L55 69H22L12 96H24V100ZM24 64H53L38.5 23Z" fill="#ffffff" fill-rule="evenodd"/>
+<path transform="translate(159 0)" d="M0 0H34V4H25L50 77L76 4H65V0H92V4H83L48 102H42L8 4H0Z" fill="#ffffff" fill-rule="evenodd"/>
+<path transform="translate(249 0)" d="M0 100V96H7L41 0H47L82 96H90V100H57V96H65L55 69H22L12 96H24V100ZM24 64H53L38.5 23Z" fill="#ffffff" fill-rule="evenodd"/>
+<path transform="translate(342 0)" d="M0 100V96H9V4H0V0H26L80 75V4H69V0H98V4H89V100H81L18 12V96H30V100Z" fill="#ffffff" fill-rule="evenodd"/>
+<path transform="translate(446 0)" d="M0 0H40C76 0 96 17 96 49C96 81 76 100 40 100H0V96H9V4H0ZM22 5V95H37C66 95 81 80 81 49C81 19 67 5 37 5Z" fill="#ffffff" fill-rule="evenodd"/>
+<path transform="translate(545 0)" d="M0 100V96H7L41 0H47L82 96H90V100H57V96H65L55 69H22L12 96H24V100ZM24 64H53L38.5 23Z" fill="#ffffff" fill-rule="evenodd"/></g>
+</svg>
