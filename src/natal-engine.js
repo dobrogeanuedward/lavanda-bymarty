@@ -284,7 +284,7 @@ export function calculateChart(input, { engine = globalThis.Astronomy, now = new
     const representative = noon.find(instant => segments.some(segment => instant >= segment.start && instant < segment.end)) ?? Math.floor((segments[0].start + segments.at(-1).end - 1) / 2);
     const planets = PLANETS.map(planet => possiblePositions(engine, planet, segments, representative));
     const partialDay = segments.at(-1).end < fullSegments.at(-1).end;
-    warnings.push({ code: 'UNKNOWN_BIRTH_TIME', message: 'Ora ignota: posizioni rappresentative e segni possibili nell’intera giornata civile; Ascendente, case e aspetti sono omessi.' });
+    warnings.push({ code: 'UNKNOWN_BIRTH_TIME', message: `Ora ignota: posizioni rappresentative e segni possibili ${partialDay?'nell’intervallo trascorso della giornata civile':'nell’intera giornata civile'}; Ascendente, case e aspetti sono omessi.` });
     if (partialDay) warnings.push({ code: 'PARTIAL_CURRENT_DAY', message: 'Per la data odierna l’intervallo termina all’istante attuale.' });
     return { planets, houses: [], aspects: [], meta: { ...meta, utc: new Date(representative).toISOString(), representativeTime: true,
       localDay: { start: new Date(segments[0].start).toISOString(), end: new Date(segments.at(-1).end).toISOString(),

@@ -136,6 +136,6 @@ if(form){
   if(!currentChart)return;const blob=new Blob([chartSVG(currentChart)],{type:'image/svg+xml;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='lavanda-carta-natale.svg';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
  });
  $('#natal-reset').addEventListener('click',()=>{
-  form.reset();$('#birth-date').max=localToday();selectedPlace=null;invalidate();clearTimeChoice();$('#birth-time').disabled=false;$('#birth-time').required=true;$('#time-help').textContent='Usa l’ora locale riportata sul documento di nascita.';$('#selected-place').hidden=true;$('#place-results').hidden=true;$('#place-status').textContent='';$('#natal-card-detail').hidden=true;$('#birth-date').focus();
+  searchVersion++;searchController?.abort();$('#search-place').disabled=false;form.reset();$('#birth-date').max=localToday();selectedPlace=null;invalidate();clearTimeChoice();$('#birth-time').disabled=false;$('#birth-time').required=true;$('#time-help').textContent='Usa l’ora locale riportata sul documento di nascita.';$('#selected-place').hidden=true;$('#place-results').hidden=true;$('#place-status').textContent='';$('#natal-card-detail').hidden=true;$('#birth-date').focus();
  });
 }
