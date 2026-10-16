@@ -121,3 +121,7 @@ Verifica Chrome e browser interno: Roma1990 14:30 locale / UTC12:30, Citrinitas 
 Su richiesta della schermata DaFont, il solo nome Lavanda adotta TrashHand di Luce Avérous in entrambe le direzioni visive. Nove loghi/wordmark SVG usano i contorni del font, mantenendo le proporzioni naturali; header e nomi delle copertine usano un WOFF2 di circa 1,8 KB con i soli caratteri necessari. Payoff THE RIOT WITCH, titoli, corpo, insegna botanica e simboli restano invariati. I 17 asset di simboli, icone e cornici verificati conservano gli stessi SHA-256. Fonte originale, attribuzione e rigenerazione in `docs/font-sources/trashhand/README.md`; tavola identità aggiornata. La prima proposta storica `primo-studio` resta archiviata nella forma originaria.
 
 Verifica nel browser interno a 320/390/1440 px, switch 01/02, nessun overflow e console pulita. Build e check riusciti: 20 pagine HTML, 918 riferimenti locali, manifesto originale e geometrie preservati. Nessuna dipendenza di produzione aggiunta.
+
+## Nome più visibile nell’header — 17 ottobre 2026
+
+Il nome Lavanda nell’header passa da 30 a 36 px su desktop e da 28 a 34–40 px su mobile, con dimensione fluida. Payoff invariato a 9 px; simbolo, loghi nelle pagine e copertine invariati. Spaziatura mobile fra i gruppi dell’header ridotta da 15 a 12 px. Verifica browser sulla carta natale a 320/360/375/390/768/1051/1200/1440 px: nessun overflow, navigazione desktop libera, menu mobile apribile e richiudibile. A 320 px il menu conserva la seconda riga già prevista dal layout.
