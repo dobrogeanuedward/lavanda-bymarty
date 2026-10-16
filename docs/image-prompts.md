@@ -67,3 +67,29 @@ Constraints: No words, no title, no lettering, no fake Hebrew, no esoteric decor
 
 Verificati: soggetti e coerenza di luce; nessun testo o watermark visibile; anatomia delle mani plausibile; carta senza scritte; l'illustrazione usa soltanto il ponte e i fiori in pervinca e un sole giallo. Le tre immagini fotografiche hanno formato 1536 × 1024, l'illustrazione 1024 × 1536. La lente nello still life è resa come vetro convesso rotondo; le rifrazioni restano discrete e fisiche.
 
+# Seconda direzione fotografica
+
++### Seconda direzione fotografia 1
+
+Strumento integrato ImageGen. Originale conservato in docs/image-originals. Bottega manifesto, scena orizzontale.
+
+Use case: photorealistic-natural. Asset type: professional editorial website photography for LAVANDA, Martina's contemporary anthropology/philosophy/botanical publishing project and neighbourhood witch's apothecary. Generate one landscape 3:2 photograph, no text. Scene: tightly art-directed still life on an intensely saturated lilac studio tabletop and matching backdrop. An exquisite clear round-bellied pharmacy flask, slender neck, natural cork, with a tiny amount of clear liquid; one real sprig of lavender lying diagonally and its faint shadow; folded black textured paper at the left edge, an offcut of intense magenta paper far right and small yellow card partly beneath the bottle. Restrained, sophisticated contemporary independent culture magazine aesthetic, luxury art direction without luxury clichés, direct afternoon studio sunlight from upper left, deep precise shadows, beautiful real refraction and caustics, subtle film grain. Bottle off-centre, strong graphic composition, generous breathing space, photographed with a medium format camera 80mm lens, exceptional material accuracy. Palette lilac #B58CFF, very small magenta #FF1685 and yellow #FFD600 accents, glass colourless. This is a real photographic object study, not a drawing, not a logo sheet, not a render mockup. Avoid hands, people, lettering, labels, fantasy props, smoke, crystals, occult clichés, sparkles, gradients and excessive objects.
+
+### Seconda direzione fotografia 2
+
+Strumento integrato ImageGen. Originale conservato in docs/image-originals. Bottega botanica, scena verticale.
+
+Use case: photorealistic-natural. Asset type: professional editorial still-life photograph for Lavanda's contemporary neighbourhood apothecary cultural journal. Generate one portrait 2:3 photograph, no text. A living lavender stem with exposed fine roots lies diagonally on a matte saturated pale lilac surface. One small, imperfect folded sheet of hot magenta coloured paper and a slim cobalt-violet glass pharmacy bottle at the far upper edge, only partly visible. A dramatic hard sunlight shadow from real lavender sprigs creates an abstract botanical calligraphy on the paper. Focus on real botanical texture, thin roots and papery dried petals, tangible human-scale objects, precise negative space, subtle analogue film grain. Contemporary independent magazine art direction, unexpected and graphic, documentary still life beautifully lit in a small atelier. Controlled palette: lilac #B58CFF field, black shadows, a single magenta #FF1685 accent and deep blue-violet #382096 glass. Photographic reality, not CGI. Avoid people, faces, smoke, moon phases, hands, candles, fake text, logos, labels, occult clichés, glitter, compositing borders, contact sheets or collages.
+
+### Seconda direzione fotografia 3
+
+Strumento integrato ImageGen. Originale conservato in docs/image-originals. Bottega rituale, scena orizzontale; dettaglio della carta ritagliato per bottega-tarot.
+
+Use case: photorealistic-natural. Asset type: LAVANDA independent philosophical/botanical journal, the neighbourhood witch's apothecary, third editorial photographic still life. Landscape 3:2 composition. On a saturated warm yellow matte paper surface stands a small beautiful irregular clear glass flask, round pear-shaped belly, very narrow neck and cork stopper. In foreground two blank cream tarot-sized paper cards, one printed with an ORIGINAL minimalist deep violet linocut illustration of a human figure stepping across a threshold with a root growing beneath them and a small sun above; the other shows a simple organic botanical engraving. No typography or lettering anywhere, especially cards must not have fake words. One real lavender sprig crosses a black sheet of torn paper; tiny magenta paper rectangle. Quiet carefully arranged composition with large clear negative space, authentic physical objects and precise hard raking shadows, refracted sunlight, subtly tactile paper and film grain, premium contemporary art-school editorial still life, real medium format photograph not CGI. Colour yellow #FFD600, ink deep violet #382096, black/cream, tiny magenta #FF1685. Avoid flames, smoke, candles, magic sparkles, hands, people, precious crystals, multiple bottles, fake writing, illustration sheet, collage.
+
+
+## Alchimia materia
+
+Strumento integrato ImageGen. Originale `docs/image-originals/alchimia-materia.png`; WebP ottimizzato nella fotografia ritual della seconda direzione.
+
+Prompt: una fotografia editoriale orizzontale 3:2 per LAVANDA — THE RIOT WITCH, sul rapporto fra opposti e trasformazione. Fogli opachi bianco e nero si incontrano diagonalmente su un piano viola; una piccola ciotola di ceramica contiene pigmento magenta, con una traccia che attraversa i due campi. Prisma trasparente e rifrazione reale del sole, un rametto di lavanda solo al margine. Materia e fibre della carta tangibili, luce diretta, fotografia analogica contemporanea. Nero, bianco, viola #382096 e magenta #FF1685; nessuna boccetta, testo, logo, figura umana, effetto luminoso fantastico o cliché occultista.

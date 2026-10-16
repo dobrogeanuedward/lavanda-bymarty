@@ -23,7 +23,16 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
+          "value": "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self'; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"
+        }
+      ]
+    },
+    {
+      "source": "/r2/lavanda/:path*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
         }
       ]
     }
@@ -34,6 +43,10 @@
     }
   },
   "rewrites": [
+    {
+      "source": "/r2/:path*",
+      "destination": "https://pub-b39e5084f7324516a4fe99c212a65c5f.r2.dev/:path*"
+    },
     {
       "source": "/",
       "destination": "/api/site?view=home"
@@ -65,6 +78,14 @@
     {
       "source": "/fanzine",
       "destination": "/api/site?view=fanzine"
+    },
+    {
+      "source": "/shop",
+      "destination": "/api/site?view=page&slug=shop"
+    },
+    {
+      "source": "/:path*",
+      "destination": "/api/redirect?source=/:path*"
     }
   ]
 }

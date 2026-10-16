@@ -70,13 +70,13 @@ Le icone sono disegni funzionali contemporanei. L'icona Arcani non riproduce un 
 
 ## File
 
-- `public/brand/logo.svg`: nero, fondo trasparente, emblema e parola.
-- `public/brand/logo-inverse.svg`: bianco, fondo trasparente.
-- `public/brand/wordmark.svg` e `wordmark-inverse.svg`: sola parola.
-- `public/brand/emblem.svg`, `emblem-inverse.svg`, `emblem-periwinkle.svg`: segno isolato.
-- `public/brand/favicon.svg`: emblema semplificato, fondo pervinca.
-- `public/brand/brand-sheet.html`: presentazione consultabile e stampabile.
-- `public/brand/generate-brand.py`: sorgente riproducibile dei tracciati; nessuna dipendenza esterna.
+- `public/brand-v1/logo.svg`: nero, fondo trasparente, emblema e parola.
+- `public/brand-v1/logo-inverse.svg`: bianco, fondo trasparente.
+- `public/brand-v1/wordmark.svg` e `wordmark-inverse.svg`: sola parola.
+- `public/brand-v1/emblem.svg`, `emblem-inverse.svg`, `emblem-periwinkle.svg`: segno isolato.
+- `public/brand-v1/favicon.svg`: emblema semplificato, fondo pervinca.
+- `public/brand-v1/brand-sheet.html`: presentazione consultabile e stampabile.
+- `scripts/generate-brand-v1.py`: sorgente riproducibile dei tracciati della prima direzione.
 - `public/icons/*.svg`: sei icone singole e `sprite.svg`.
 
-Rigenerazione: `python public/brand/generate-brand.py` dalla root del progetto. I file SVG non contengono script né risorse esterne.
+Rigenerazione: `python scripts/generate-brand-v1.py` dalla root del progetto. I file SVG non contengono script né risorse esterne.

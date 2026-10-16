@@ -104,7 +104,7 @@
       "metadata": {},
       "seo": {
         "title": "Il manifesto",
-        "description": "Lavanda — La bottega della speziale.",
+        "description": "Lavanda — THE RIOT WITCH. Il manifesto di Martina.",
         "noindex": true
       },
       "version": 1,
@@ -113,16 +113,16 @@
     {
       "id": "seed-progetto",
       "type": "page",
-      "title": "La bottega della speziale",
+      "title": "Il progetto",
       "slug": "progetto",
       "excerpt": "Un progetto di Martina.",
-      "body": "Lavanda è il progetto editoriale di Martina. Antropologia, filosofia, botanica e immaginario esoterico aprono una ricerca sulle forme del tempo e dell’esistenza.\n\nIl sito, il blog, i canali social e la digital fanzine sono i media di questa ricerca. Strega di quartiere è la firma della bottega.",
+      "body": "Lavanda / THE RIOT WITCH.\n\nLavanda è il progetto editoriale di Martina. Antropologia, filosofia, Tarocchi e archetipi, alchimia, botanica e politica aprono una ricerca sulle forme del tempo e dell’esistenza.\n\nIl sito, il blog, i canali social e la digital fanzine sono i media di questa ricerca.",
       "status": "draft",
       "tags": [],
       "metadata": {},
       "seo": {
-        "title": "La bottega della speziale",
-        "description": "Lavanda — La bottega della speziale.",
+        "title": "Il progetto",
+        "description": "Lavanda — THE RIOT WITCH. Un progetto di Martina.",
         "noindex": true
       },
       "version": 1,
@@ -165,6 +165,28 @@
       "seo": {
         "title": "Il ritmo perduto",
         "description": "Il quaderno zero di Lavanda.",
+        "noindex": true
+      },
+      "version": 1,
+      "updated_at": null
+    },
+    {
+      "id": "seed-shop",
+      "type": "page",
+      "title": "Shop",
+      "slug": "shop",
+      "excerpt": "La prima selezione sta prendendo forma.",
+      "body": "## La vetrina di Lavanda\n\nUno spazio futuro del progetto Lavanda.\n\n## Edizioni\n\nIn preparazione.\n\n## Immagini\n\nIn preparazione.\n\n## Arcani e oggetti\n\nIn preparazione.",
+      "status": "draft",
+      "tags": [],
+      "metadata": {
+        "cover_url": "/assets/ritual.webp",
+        "image_alt": "Un gesto di composizione tra una carta, la luce e un ramo di lavanda.",
+        "subtitle": "Lavanda / THE RIOT WITCH"
+      },
+      "seo": {
+        "title": "Shop | Lavanda",
+        "description": "La prima selezione sta prendendo forma. Uno spazio futuro del progetto Lavanda.",
         "noindex": true
       },
       "version": 1,
@@ -232,7 +254,7 @@
   "taxonomies": [],
   "settings": {
     "site_title": "Lavanda",
-    "tagline": "La bottega della speziale",
-    "site_description": "Strega di quartiere. Antropologia, filosofia, storie e natura."
+    "tagline": "THE RIOT WITCH",
+    "site_description": "Antropologia, filosofia, Tarocchi e archetipi, alchimia, botanica e politica. Un progetto di Martina."
   }
 }

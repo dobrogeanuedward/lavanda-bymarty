@@ -87,13 +87,13 @@ create index cms_revisions_entry_idx on public.cms_revisions(entry_id,created_at
 create index cms_revisions_actor_idx on public.cms_revisions(actor_id);
 create table public.cms_settings (
   id uuid primary key default gen_random_uuid(),singleton boolean not null default true unique check(singleton),
-  site_title text not null default 'Lavanda' check(length(site_title) between 1 and 150),tagline text not null default 'Strega di quartiere' check(length(tagline)<=240),
+  site_title text not null default 'Lavanda' check(length(site_title) between 1 and 150),tagline text not null default 'THE RIOT WITCH' check(length(tagline)<=240),
   site_description text not null default '' check(length(site_description)<=1000),seo jsonb not null default '{}' check(jsonb_typeof(seo)='object' and octet_length(seo::text)<=5000),
   social_links jsonb not null default '{}' check(jsonb_typeof(social_links)='object' and octet_length(social_links::text)<=25000),
   navigation jsonb not null default '[]' check(jsonb_typeof(navigation)='array' and jsonb_array_length(navigation)<=20 and octet_length(navigation::text)<=50000),
   version integer not null default 1 check(version>0),created_at timestamptz not null default now(),updated_at timestamptz not null default now()
 );
-insert into public.cms_settings(site_title,tagline)values('Lavanda','Strega di quartiere');
+insert into public.cms_settings(site_title,tagline)values('Lavanda','THE RIOT WITCH');
 create table public.cms_redirects (
   id uuid primary key default gen_random_uuid(),source text not null unique check(source~'^/[^[:space:]<>]*$' and source!~'^//' and source!~'^/(api|admin)(/|$)' and length(source)<=2048),
   target text not null check((target~'^/[^[:space:]<>]*$' and target!~'^//')or target~'^https://[^[:space:]<>]+$'),
@@ -227,6 +227,14 @@ create policy cms_settings_read on public.cms_settings for select to anon,authen
 create policy cms_settings_update on public.cms_settings for update to authenticated using((select private.cms_role())='admin')with check((select private.cms_role())='admin');
 create policy cms_redirects_read on public.cms_redirects for select to authenticated using((select private.cms_role())is not null);
 create policy cms_redirects_write on public.cms_redirects for all to authenticated using((select private.cms_role())='admin')with check((select private.cms_role())='admin');
+-- Redirect destinations are public routing data. Anonymous readers get only the
+-- three routing columns; IDs, versions and timestamps remain redaction-only.
+grant select(source,target,code) on public.cms_redirects to anon;
+create policy cms_redirects_public_read on public.cms_redirects for select to anon using(true);
+create view public.cms_public_redirects with(security_invoker=true)as
+ select source,target,code from public.cms_redirects;
+revoke all on public.cms_public_redirects from public,anon,authenticated;
+grant select on public.cms_public_redirects to anon;
 create policy cms_comments_read on public.cms_comments for select to authenticated using((select private.cms_role())is not null);
 create policy cms_comments_write on public.cms_comments for all to authenticated using((select private.cms_role())in('admin','editor'))with check((select private.cms_role())in('admin','editor'));
 create policy cms_revisions_read on public.cms_revisions for select to authenticated using((select private.cms_role())is not null);

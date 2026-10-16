@@ -4,6 +4,12 @@ La voce primaria è quella di Martina nel manifesto fornito. Il messaggio tecnic
 
 Lavanda è una rivista culturale con un orientamento antropologico, filosofico, esoterico, botanico e politico. Il manifesto colloca al centro la ciclicità, il rapporto fra macrocosmo e microcosmo e la critica alla prestazione continua. La sua domanda sociale riguarda le forme della parità e la dignità di pausa, vulnerabilità e rigenerazione.
 
+## Nome, payoff e mondi editoriali
+
+**Lavanda — THE RIOT WITCH** è l’identità della rivista e rimane tale nelle direzioni visive 01 e 02. I percorsi dell’atlante e del blog rendono riconoscibili Tarocchi e archetipi, alchimia, antropologia e politica, botanica, mantenendo le relazioni fra questi campi.
+
+**La bottega della speziale**, con la firma **Strega di quartiere**, appartiene alla Botanica. La sua insegna è un modulo di quest’area e viene presentata con l’etichetta «Botanica». Il masthead, il payoff generale e la descrizione del progetto restano quelli di Lavanda. Le etichette di navigazione organizzano i materiali esistenti; eventuali testi nuovi mantengono la distinzione fra parole di Martina e studi redazionali.
+
 ## Voce proposta, da confrontare con Martina
 
 - Scrittura densa, sensoriale e interrogativa; le immagini simboliche aprono un pensiero e non servono da ornamento.

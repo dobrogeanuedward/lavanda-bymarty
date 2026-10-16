@@ -1,4 +1,8 @@
 import {hydratePublishedContent} from './public-content.js';
+import './branding.js';
+import {initWorld} from './world.js';
+globalThis.LavandaBranding?.init();
+initWorld();
 const menu = document.querySelector('.menu-toggle');
 menu?.addEventListener('click',()=>{const open=menu.getAttribute('aria-expanded')!=='true';menu.setAttribute('aria-expanded',String(open));document.querySelector('.header')?.classList.toggle('open',open);menu.querySelector('span').textContent=open?'−':'+';});
 document.addEventListener('keydown',event=>{if(event.key==='Escape'&&menu?.getAttribute('aria-expanded')==='true'){menu.click();menu.focus();}});
@@ -28,6 +32,8 @@ document.querySelectorAll('[data-save]').forEach(button=>{
 const tabs=[...document.querySelectorAll('[data-tab]')];
 function selectTab(tab){tabs.forEach(t=>{const selected=t===tab;t.setAttribute('aria-selected',String(selected));t.tabIndex=selected?0:-1;const panel=document.getElementById(t.getAttribute('aria-controls'));if(panel)panel.hidden=!selected;});}
 tabs.forEach((tab,i)=>{tab.addEventListener('click',()=>selectTab(tab));tab.addEventListener('keydown',event=>{let next;if(event.key==='ArrowRight')next=(i+1)%tabs.length;if(event.key==='ArrowLeft')next=(i-1+tabs.length)%tabs.length;if(event.key==='Home')next=0;if(event.key==='End')next=tabs.length-1;if(next!==undefined){event.preventDefault();selectTab(tabs[next]);tabs[next].focus();}});});
+function selectLinkedTab(){const selected=tabs.find(tab=>tab.id===location.hash.slice(1));if(selected)selectTab(selected);}
+selectLinkedTab();window.addEventListener('hashchange',selectLinkedTab);
 
 const spreads=[...document.querySelectorAll('[data-spread]')];
 let page=0;

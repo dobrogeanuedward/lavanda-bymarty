@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="it" data-brand="02">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow"><meta name="referrer" content="same-origin">
+  <title>Scrivi sulla pagina | Lavanda</title>
+  <script src="/branding.js"></script>
+  <link rel="icon" href="/brand/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/world.css">
+  <link rel="stylesheet" href="/admin/live-editor.css">
+</head>
+<body id="live-editor">
+  <a class="skip" href="#live-title">Vai allo scritto</a>
+  <header class="live-bar" aria-label="Strumenti di scrittura">
+    <a id="live-exit" href="/admin/#contents" class="live-exit">← Redazione</a>
+    <span class="live-bar-label">Scrivi sulla pagina</span>
+    <span id="live-status" class="live-status" role="status">Preparazione…</span>
+    <div class="live-save-actions">
+      <button id="save-draft" type="button" disabled>Bozza</button>
+      <button id="save-document" type="button" disabled>Salva</button>
+      <button id="publish-document" type="button" class="live-primary" disabled>Pubblica</button>
+    </div>
+  </header>
+  <div class="live-tools" role="toolbar" aria-label="Formato e blocchi">
+    <button type="button" data-format="bold" aria-label="Grassetto" title="Grassetto (⌘/Ctrl+B)"><strong>G</strong></button>
+    <button type="button" data-format="italic" aria-label="Corsivo" title="Corsivo (⌘/Ctrl+I)"><em>C</em></button>
+    <span class="live-tool-divider" aria-hidden="true"></span>
+    <button type="button" data-convert="heading" title="Trasforma il blocco selezionato in titolo">Titolo</button>
+    <button type="button" data-convert="quote" title="Trasforma il blocco selezionato in citazione">Citazione</button>
+    <button type="button" data-convert="text" title="Trasforma il blocco selezionato in paragrafo">Testo</button>
+    <label class="live-width-label">Larghezza <select id="block-width" aria-label="Larghezza del blocco selezionato"><option value="100">100%</option><option value="75">75%</option><option value="50">50%</option><option value="25">25%</option></select></label>
+    <details id="insert-menu" class="live-insert-menu">
+      <summary>+ Inserisci</summary>
+      <div class="live-insert-options">
+        <button type="button" data-add="text">Paragrafo</button><button type="button" data-add="heading">Capitolo</button>
+        <button type="button" data-add="quote">Citazione</button><button type="button" data-add="image">Immagine</button>
+        <button type="button" data-add="gallery">Gallery</button><button type="button" data-add="divider">Separatore</button>
+        <button type="button" data-add="audio">Audio da URL</button><button type="button" data-add="video">Video da URL</button>
+        <button type="button" data-add="file">Documento PDF</button><button type="button" data-add="library">Dalla libreria</button>
+        <small>Immagini fino a 40 MB, ridotte nel browser. PDF e file caricati fino a 3 MB. Audio e video tramite URL R2.</small>
+      </div>
+    </details>
+    <button id="toggle-preview" type="button" aria-pressed="false">Anteprima</button>
+    <button id="export-draft" type="button" title="Scarica una copia del testo (⌘/Ctrl+Maiusc+E)" disabled>Esporta</button>
+  </div>
+  <p id="live-mode" class="live-mode" role="status">Caricamento della tua pagina…</p>
+  <header class="header live-site-header">
+    <a class="brand-small" href="/" aria-label="Lavanda, home"><img src="/brand/emblem.svg" width="34" height="34" alt=""><span>Lavanda</span></a>
+    <nav aria-label="Navigazione del sito"><a href="/blog/">Il blog</a><a href="/manifesto/">Manifesto</a><a href="/atlante/">Atlante</a><a href="/fanzine/">Fanzine</a></nav>
+    <div class="brand-switch" role="group" aria-label="Direzione visiva"><span class="brand-switch-label">Identità</span><button type="button" data-brand-select="01" aria-pressed="false">01</button><button type="button" data-brand-select="02" aria-pressed="true">02</button><span class="brand-switch-status" data-brand-status aria-live="polite"></span></div>
+  </header>
+  <main id="live-main" aria-busy="true"><div class="live-loading wrap">La pagina si sta aprendo…</div></main>
+  <div id="live-toast" role="status" aria-live="polite" hidden></div>
+  <dialog id="live-dialog" aria-labelledby="live-dialog-title"><div id="live-dialog-content"></div></dialog>
+  <input id="live-files" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif,application/pdf" multiple hidden>
+  <script type="module" src="/admin/live-editor.js"></script>
+</body>
+</html>

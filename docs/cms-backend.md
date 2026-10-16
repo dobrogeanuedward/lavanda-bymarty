@@ -13,7 +13,7 @@ Restano dipendenti dall'attivazione dei servizi: accesso reale, persistenza cond
 ## Attivazione del progetto dedicato
 
 1. Creare o identificare il progetto Supabase dedicato a Lavanda nell'organizzazione scelta dal titolare. Non riutilizzare database di altri progetti.
-2. Eseguire **una sola volta** `database/bootstrap.sql` nel SQL Editor del progetto nuovo. Il file è transazionale e intenzionalmente non idempotente: un errore annulla il bootstrap. Non è una migrazione già applicata. Quando il database sarà disponibile, usare il flusso Supabase `db pull` per registrare la migrazione iniziale e i successivi cambiamenti.
+2. Eseguire **una sola volta** `database/bootstrap.sql` nel SQL Editor del progetto nuovo. Il file è transazionale e intenzionalmente non idempotente: un errore annulla il bootstrap. Crea le tabelle e le impostazioni iniziali, **non importa i testi locali**. Prima di collegare il sito, completare la procedura di importazione qui sotto. Non è una migrazione già applicata. Quando il database sarà disponibile, usare il flusso Supabase `db pull` per registrare la migrazione iniziale e i successivi cambiamenti.
 3. In Authentication disattivare le registrazioni pubbliche per questa redazione, mantenere la conferma email e configurare le protezioni/rate limit Auth. Creare l'account di Martina con email confermata e una password scelta fuori dal repository. Nessuna password va inviata in chat, salvata nei sorgenti o inserita nei log.
 4. Attivare il primo amministratore dal SQL Editor, sostituendo l'email:
 
@@ -39,6 +39,64 @@ values ('analytics_hmac', 'SEGRETO_CASUALE_DI_ALMENO_32_CARATTERI');
 8. Dopo la configurazione eseguire `node --env-file=.env.local scripts/cms-verify.mjs`: controllo remoto di sola lettura, senza password, senza creare contenuti. Con `CMS_ACCESS_TOKEN` opzionale verifica anche la sessione autenticata; non stampa il token.
 
 I nuovi utenti Auth ricevono un profilo `viewer` **inattivo**: una registrazione non conferisce alcun accesso. Un amministratore deve attivarli e scegliere il ruolo. Il codice verifica il profilo aggiornato a ogni richiesta; non usa `user_metadata` per autorizzare. Non si può disattivare o declassare il proprio account amministratore.
+
+## Importazione iniziale dei testi e collegamento degli asset
+
+`scripts/seed-cms.mjs` importa `public/admin/seed.json` nel progetto Lavanda già inizializzato. Il comando predefinito è un controllo **locale, senza rete e senza scritture**:
+
+```sh
+npm run cms:seed
+```
+
+Il seed attuale contiene quattro articoli, tre pagine (manifesto, progetto e shop), un quaderno con quattro pagine e quattro asset. Tutti gli otto contenuti sono **bozze** con `seo.noindex=true`: l’importazione conserva questi valori. Dopo il collegamento del database il sito pubblico legge soltanto le pubblicazioni; importare le bozze rende i testi disponibili nella redazione, ma **non li pubblica**. Prima di aprire il sito, rivedere e pubblicare esplicitamente i testi desiderati dalla dashboard, e adeguare `seo.noindex` dopo la revisione.
+
+Gli asset ottimizzati possono essere distribuiti direttamente dal sito con i percorsi `/assets/…`: il rinvio di R2 non blocca l’importazione dei testi. Quando disponibili sul bucket **Cloudflare R2 già usato da DOGO**, gli URL verificati possono essere forniti nella mappa opzionale descritta sotto. Il comando seed controlla i file locali (formato, firma, dimensioni e hash), ma non esegue upload, non chiama le API Storage e non certifica la disponibilità remota degli asset. Le copertine rimangono percorsi locali oppure diventano URL HTTPS in `metadata.cover_url`, con `cover_media_id=null`: non vengono creati record `cms_media` che dichiarino oggetti Supabase inesistenti. Questo passaggio riguarda il seed iniziale; non configura né sostituisce l’endpoint generale di upload della dashboard.
+
+Per l’esecuzione reale, predisporre in un processo di manutenzione controllato le seguenti variabili, tramite il gestore dei segreti. Non scrivere chiavi in file, repository, chat, log, URL o argomenti della riga di comando:
+
+| Variabile | Valore richiesto |
+| --- | --- |
+| `SUPABASE_URL` | Origine HTTPS del progetto dedicato, senza percorsi, query o credenziali |
+| `LAVANDA_CMS_PROJECT_REF` | Identificativo dello stesso progetto presente nell’hostname; evita di importare nel progetto sbagliato |
+| `SUPABASE_SECRET_KEY` | Chiave privilegiata server `sb_secret_…`, riservata a questa manutenzione |
+| `SUPABASE_SERVICE_ROLE_KEY` | Alternativa legacy alla secret key; deve essere un JWT con ruolo `service_role` |
+| `LAVANDA_CMS_AUTHOR_ID` | UUID del profilo amministratore **attivo** cui assegnare i testi importati |
+| `LAVANDA_CMS_ASSET_MAP` | Opzionale: oggetto JSON completo che associa ciascun percorso locale del seed al suo URL pubblico HTTPS R2 permanente e già verificato, senza query, frammenti o firme temporanee. Se assente, conserva `/assets/…` |
+
+Esempio della sola mappa **non segreta**, con dominio e chiavi da sostituire con gli URL effettivi:
+
+```json
+{
+  "/assets/manifesto.webp": "https://media.example.org/lavanda/manifesto.webp",
+  "/assets/botanical.webp": "https://media.example.org/lavanda/botanical.webp",
+  "/assets/ritual.webp": "https://media.example.org/lavanda/ritual.webp",
+  "/assets/tarot.webp": "https://media.example.org/lavanda/tarot.webp"
+}
+```
+
+Le chiavi privilegiate sono usate soltanto dallo script di manutenzione. Non aggiungerle alle variabili del sito o alle Functions: l’applicazione continua a usare la chiave publishable e la sessione dell’utente. Il Data API richiede grant espliciti anche al ruolo server; dopo il bootstrap eseguire nel SQL Editor del progetto dedicato questo blocco per l’importatore:
+
+```sql
+grant usage on schema private to service_role;
+grant execute on function private.cms_role() to service_role;
+grant select on public.cms_profiles to service_role;
+grant select, insert on public.cms_entries, public.cms_taxonomies, public.cms_settings to service_role;
+```
+
+Non sono necessari grant su Storage, note private, audit o revisioni per questo script. I grant sullo schema `private` permettono al trigger di validazione già presente di verificare il ruolo corrente; non rendono pubblico lo schema. I progetti Supabase nuovi richiedono l’esposizione esplicita delle tabelle, distinta dalle policy RLS. La procedura segue la documentazione corrente su [chiavi server](https://supabase.com/docs/guides/getting-started/api-keys) e [grant del Data API](https://supabase.com/changelog/45329-breaking-change-tables-not-exposed-to-data-and-graphql-api-automatically).
+
+Con l’ambiente pronto, validare il seed e l’eventuale mappa e poi applicare:
+
+```sh
+npm run cms:seed -- --dry-run
+npm run cms:seed -- --apply
+```
+
+`--apply` controlla prima il profilo amministratore e legge i record esistenti. Gli identificativi sono UUID deterministici; i contenuti si confrontano per `(type, slug)` e le tassonomie per `(kind, slug)`. Gli inserimenti usano `resolution=ignore-duplicates`: un record esistente mantiene testo, stato, identità e modifiche redazionali. Le impostazioni create dal bootstrap vengono conservate; titolo, sottotitolo e descrizione del seed si inseriscono solo se il record singleton manca. Un’interruzione può lasciare una parte dei record già importata: ripetere lo stesso comando completa i mancanti senza cancellare o aggiornare gli esistenti. Non è una transazione unica fra tutte le richieste REST.
+
+Lo script normalizza il vecchio campo `cover_alt` in `image_alt` e converte gli eventuali riferimenti del sommario ai UUID effettivi, anche quando un articolo con lo stesso slug esiste già. Le note private nel seed vengono rifiutate: si gestiscono dalla redazione. Il seed attuale ha pagine fanzine testuali; eventuali pagine con `media_id` vengono rifiutate finché il modello non supporta le immagini esterne R2 nelle singole pagine. L’importazione server non simula un utente Auth e non genera revisioni o audit attribuiti a Martina; i successivi salvataggi nella redazione producono la normale cronologia.
+
+Al termine verificare nella dashboard tutti gli otto testi, le copertine locali o R2 e il quaderno, ricaricando i record dal database. Per il sito pubblico verificare anche che le bozze restino escluse e che solo i contenuti effettivamente pubblicati siano leggibili. Rimuovere la chiave privilegiata dall’ambiente di manutenzione quando non serve più. L’importatore non ripara contenuti già esistenti né aggiorna URL cambiati dopo la prima importazione: queste modifiche passano dalla redazione.
 
 ## Contratto HTTP
 
@@ -116,6 +174,8 @@ Eventi ammessi: `page_view`/`pageview`, `article_open`, `fanzine_open`, `downloa
 ## Verifica svolta e limiti
 
 `node --test tests/cms.test.mjs`: test di API e sicurezza con fetch simulato, coprendo configurazione assente, credenziali privilegiate, origine/CSRF, dimensioni input, URL/XSS, ruoli, ownership, pubblicazione, MIME/file, cookie, JWT non verificati, profili inattivi, conflitti di versione, filtri pubblici e privacy analytics.
+
+`node --test tests/cms-seed.test.mjs`: nove test con REST simulato, sul seed e sugli asset locali reali. Verificano dry run senza rete, URL R2 completi e HTTPS, assenza di chiamate Storage, conservazione delle bozze e delle modifiche già presenti, ripresa di un’importazione interrotta, conversione degli identificativi, controllo del profilo amministratore e mancata esposizione dei dettagli remoti o delle credenziali negli errori. Nessun database Supabase o bucket R2 reale è stato contattato da questi test.
 
 `tests/cms-database.test.mjs`: suite opzionale su PostgreSQL WASM PGlite 0.3.14 in ambiente temporaneo, con fixture delle sole tabelle Auth/Storage. Esegue lo schema, le policy RLS, i trigger, le revisioni, il salvataggio atomico, la visibilità delle bozze, l'isolamento delle note e l'immutabilità dei file pubblicati. La funzione crittografica pgcrypto è simulata in questa sola fixture; l'HMAC effettivo è testato in Node. La suite non dimostra la disponibilità del progetto Supabase remoto né sostituisce i suoi advisor o il collaudo dopo l'attivazione.
 

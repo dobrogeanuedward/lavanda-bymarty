@@ -1,6 +1,6 @@
-# Lavanda — La bottega della speziale
+# Lavanda — THE RIOT WITCH
 
-Il progetto editoriale di Martina. Sito, blog, atlante, digital fanzine, identità e studio di gestione.
+Il progetto editoriale di Martina. Tarocchi e archetipi, alchimia, antropologia e politica, botanica attraversano sito, blog, atlante e digital fanzine.
 
 ## Avvio
 
@@ -33,7 +33,9 @@ Il frontend legge il corpo dei nuovi scritti come testo/Markdown semplice, senza
 
 ## Direzione
 
-La bozza di Martina guida il marchio: boccetta, cerchio aperto, lettering irregolare, insegna «La bottega della speziale» e firma «Strega di quartiere». La prima direzione precedente resta documentata, senza sovrapporre i due sistemi.
+Il nome della rivista è **Lavanda** e il suo payoff è **THE RIOT WITCH**, in entrambe le direzioni visive 01 e 02. La bozza di Martina guida la ricerca del marchio: boccetta, cerchio aperto e lettering irregolare.
+
+**La bottega della speziale** è l’insegna dell’area **Botanica**; **Strega di quartiere** appartiene a questa area. Nel sito il modulo della Bottega è distinto dal masthead di Lavanda. L’atlante e i percorsi editoriali comprendono anche Tarocchi e archetipi, alchimia, antropologia e politica. La prima direzione resta conservata per il confronto.
 
 La firma generativa di dieci punti e ventidue percorsi vive in `src/geometry.mjs`. È un’interpretazione grafica contemporanea, non la ricostruzione di un diagramma tradizionale; il seed creativo non viene usato per funzioni di sicurezza.
 
@@ -42,3 +44,11 @@ La firma generativa di dieci punti e ventidue percorsi vive in `src/geometry.mjs
 La base CMS copre il lavoro editoriale previsto dal progetto. La parità con l’intero ecosistema WordPress (plugin, temi di terzi, decenni di integrazioni) non è una caratteristica verificata. Il salvataggio condiviso, l’accesso multiutente, gli upload remoti e le analytics reali richiedono la configurazione del database dedicato e il collaudo degli account effettivi.
 
 Vedi `docs/` per sistema di marca, fonti editoriali, immagini e configurazione del CMS. I font locali sono derivati da URW Base35; la licenza con eccezione per i font è inclusa in `public/fonts/LICENSE.txt`.
+
+## Scrittura sulla pagina e vetrina
+
+Dal CMS, «Modifica sulla pagina» apre `/admin/live.html`: titolo e capitoli editabili nell'impaginato, formattazione, blocchi trascinabili, immagini, gallery e larghezze da moodboard. Il contenuto strutturato viene reso dallo stesso modulo del sito pubblico. In locale salva su questo dispositivo; la pubblicazione condivisa richiede Supabase attivo. Immagini in ingresso fino a 40 MB vengono ridotte nel browser; gli upload persistenti attuali restano entro 3 MB. Audio e video si inseriscono tramite URL autorizzato.
+
+`/shop/` è una vetrina editoriale, con pagina CMS modificabile e collezioni in preparazione. Nessun prodotto, prezzo o carrello inventato. Lo switch 01/02 confronta le due identità, con payoff globale **THE RIOT WITCH**; la bottega/Strega di quartiere è soltanto il mondo Botanica.
+
+R2 DOGO è predisposto con inventario, varianti WebP/AVIF e verifica degli oggetti. L'upload è stato rinviato; il sito usa asset locali ottimizzati finché non esiste `content/asset-manifest.json` verificato. L'inventario pendente è locale e ignorato da Git. Contesto e decisioni sono raccolti in `docs/project-context.md`.

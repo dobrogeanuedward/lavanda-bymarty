@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 560" fill="none">
+  <!-- Original card composition, rather than a reproduction of a historic arcane. -->
+  <rect x="16" y="15" width="348" height="530" rx="28" fill="#fff" stroke="#000" stroke-width="5"/>
+  <rect x="34" y="34" width="312" height="492" rx="15" stroke="#000" stroke-width="2"/>
+  <path d="M99 429V253a91 91 0 0 1 182 0v176M119 429V254a71 71 0 0 1 142 0v175" stroke="#000" stroke-width="5"/>
+  <path d="M99 429h182M119 400h142M131 429l-17 47m135-47 17 47M83 477h214M190 270v127m-42-47 42 47 43-47" stroke="#000" stroke-width="4" stroke-linecap="round"/>
+  <path d="M190 71v46m-23-23h46m-39-16 32 32m0-32-32 32M78 165v27m-14-14h28M300 308v30m-15-15h30" stroke="#000" stroke-width="3" stroke-linecap="round"/>
+  <path d="M277 89c-17 27-10 52 14 65-34 4-56-15-54-40 1-13 12-24 40-25Z" fill="#000"/>
+  <path d="M71 338c-23-13-34-31-29-56 23 11 35 29 29 56Zm2 56c23-13 35-33 30-56-24 11-36 29-30 56Zm-2 24v-88" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="83" cy="85" r="7" fill="#000"/><circle cx="302" cy="217" r="5" fill="#000"/><circle cx="190" cy="494" r="6" fill="#000"/>
+</svg>

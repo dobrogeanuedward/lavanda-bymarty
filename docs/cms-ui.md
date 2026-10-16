@@ -21,6 +21,8 @@ Lo spazio di redazione riprende l’articolazione di DOGO FRAME: sidebar compatt
 - Impostazioni: nome, sottotitolo, descrizione, Instagram, SEO generale, menu ordinabile, reindirizzamenti. Esportazione JSON dei metadati/contenuti e importazione aggiuntiva di bozze nello spazio locale. Gli originali media e gli account non sono inclusi nel backup JSON.
 - Layout adattivo, menu mobile, link per saltare al contenuto, etichette accessibili, focus visibile, dialoghi nativi con Escape, scorciatoia Ctrl/Cmd+S, rispetto della preferenza di movimento ridotto.
 
+Le impostazioni generali identificano **Lavanda — THE RIOT WITCH**. Il menu e le categorie devono rappresentare i suoi mondi: Tarocchi e archetipi, alchimia, antropologia e politica, botanica. **La bottega della speziale / Strega di quartiere** è il modulo della Botanica: questi nomi si usano nei contenuti e nell’insegna dell’area, mentre il sottotitolo globale resta **THE RIOT WITCH**.
+
 ## Locale e CMS collegato
 
 In assenza di configurazione appare sempre il banner **Anteprima locale — modifiche salvate su questo dispositivo**. Lo spazio locale usa la chiave `lavanda-studio-v1`; i file sono in `lavanda-studio-media`. Non pubblica sul sito, non ha utenti veri e non produce analytics simulate. I dati possono essere persi cancellando l’archiviazione del browser. Un errore di quota viene mostrato come salvataggio fallito e invita all’esportazione.
@@ -41,14 +43,26 @@ L’interfaccia richiede `/admin/seed.json` solo quando non esiste già uno spaz
   "media": [{"id":"seed-manifesto","title":"Materia","public_url":"/assets/manifesto.webp","alt":"…","mime_type":"image/webp","folder":"Studio fotografico"}],
   "issues": [{"id":"seed-numero-00","type":"fanzine","title":"Il ritmo perduto","slug":"numero-00","status":"draft","body":"…","metadata":{"issue_number":"00","article_ids":["seed-il-ritmo-perduto"]},"fanzine_pages":[]}],
   "taxonomies": [{"id":"seed-manifesto-category","name":"Manifesto","slug":"manifesto","kind":"category","description":""}],
-  "settings": {"site_title":"Lavanda","tagline":"The riot witch","navigation":[]}
+  "settings": {"site_title":"Lavanda","tagline":"THE RIOT WITCH","navigation":[]}
 }
 ```
 
 Il lettore supporta anche i file sorgente `{articles, fanzine}`. Gli ID `seed-*` valgono soltanto nel locale. Gli ID remoti sono generati dal database e sono UUID.
+
+Il seed aggiornato corregge nome e payoff per i nuovi spazi locali. Uno spazio già salvato conserva le impostazioni presenti: il sottotitolo si può aggiornare dalla vista Impostazioni senza cancellare bozze o media.
 
 ## Verifiche svolte e limiti
 
 Verificato `node --check` sul modulo. Smoke test in VM per otto viste, editor, analytics vuote, escaping e URL sicuri, scrittura locale e versioni, serializzazione dei payload con validatore reale del backend, isolamento su errore remoto. Non è stato possibile eseguire un browser grafico locale: non è installato un binario Chromium/Firefox e non ne è stato scaricato uno. Occorre ancora collaudare il flusso completo con database configurato, browser reale, account dei diversi ruoli e pubblicazione Vercel.
 
 Il modulo è una prima implementazione sostanziale del CMS, non una parità verificata con l’ecosistema WordPress. Restano fuori: sistema di plugin/temi, editor visuale completo, collaborazione simultanea con presenza, inviti account via UI, builder di moduli pubblici, gestione newsletter, libreria con ritagli/trasformazioni immagini, traduzioni, formati di import/export WordPress, restore automatico dei binari media e backup infrastrutturali. Le raccolte commenti richiedono un canale pubblico configurato per ricevere contributi. Le impostazioni pubbliche e i redirect dipendono dal lettore pubblico del sito.
+
+## Editor direttamente nella pagina
+
+«Modifica sulla pagina» apre la veste di lettura con una barra di scrittura in alto. Si clicca su titolo, testo o capitolo per scrivere; l'indice segue i titoli e mantiene ancore stabili. Grassetto e corsivo vengono salvati come formattazione strutturata, senza HTML arbitrario. I blocchi si trascinano o si spostano con frecce; larghezze 25/50/75/100 producono composizioni affiancate e tornano a una colonna su mobile.
+
+Il formato supporta paragrafo, titolo, citazione, immagine, gallery, separatore, audio, video e documento. Le immagini locali possono entrare fino a 40 MB e vengono ridotte in WebP entro il limite persistente di 3 MB. PDF entro 3 MB; audio e video tramite URL R2 autorizzato. I limiti sono dichiarati nella UI. I media locali restano in IndexedDB, i loro URL blob non vengono salvati nel documento pubblico.
+
+Il vecchio form riconosce un documento strutturato e propone «Continua sulla pagina» senza esporre JSON nel campo testo. L'anteprima riusa il renderer pubblico. Una migrazione aggiunge soltanto la pagina Shop quando manca nel browser, senza riscrivere bozze o impostazioni preesistenti.
+
+Collaudo CUA del 16 ottobre 2026: click e modifica del testo, salvataggio e riapertura persistente, modifica del capitolo e navigazione da indice, due blocchi al 50% affiancati. In locale Pubblica resta disabilitato. La bozza di collaudo è stata spostata nel cestino recuperabile, senza modificare gli scritti originali. La persistenza condivisa e gli account remoti restano da verificare dopo l'attivazione di Supabase.

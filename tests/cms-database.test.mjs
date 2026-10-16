@@ -42,6 +42,14 @@ test('PostgreSQL bootstrap, RLS, atomic notes, revisions and storage publication
   await as('outsider');assert.equal((await q('select*from public.cms_entries')).rows.length,0);assert.equal((await q('select*from public.cms_entry_notes')).rows.length,0);
   await as();assert.equal((await q('select*from public.cms_entries')).rows.length,0);await assert.rejects(q('select*from public.cms_entry_notes'),e=>e.code==='42501');
   await as('admin');
+  await q("insert into public.cms_redirects(source,target,code)values('/vecchio/','/blog/nuovo/',301)");
+  await as();
+  assert.deepEqual((await q('select*from public.cms_public_redirects')).rows,[{source:'/vecchio/',target:'/blog/nuovo/',code:301}]);
+  assert.equal((await q("select source,target,code from public.cms_redirects where source='/vecchio/'")).rows.length,1);
+  await assert.rejects(q('select*from public.cms_redirects'),e=>e.code==='42501');
+  await assert.rejects(q('select id,version,created_at from public.cms_redirects'),e=>e.code==='42501');
+  await assert.rejects(q("insert into public.cms_redirects(source,target)values('/attacco/','/nuovo/')"),e=>e.code==='42501');
+  await as('admin');
   const published=await save(draft.id,2,{status:'published'});assert.ok(published.published_at);assert.equal(published.version,3);
   await as();const publicEntries=(await q('select*from public.cms_entries')).rows;assert.equal(publicEntries.length,1);assert.ok(!Object.hasOwn(publicEntries[0],'editorial_notes'));
   await as('admin');await save(draft.id,3,{status:'draft'});await as();assert.equal((await q('select*from public.cms_entries')).rows.length,0);

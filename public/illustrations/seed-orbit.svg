@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 560" fill="none">
+  <!-- Original orbit and seed study, with no historical or scientific claim. -->
+  <g stroke="#000" stroke-width="3">
+    <circle cx="280" cy="280" r="228"/><circle cx="280" cy="280" r="154"/>
+    <ellipse cx="280" cy="280" rx="100" ry="228" transform="rotate(34 280 280)"/>
+    <ellipse cx="280" cy="280" rx="100" ry="228" transform="rotate(-34 280 280)"/>
+    <path d="M280 52v456M52 280h456"/>
+  </g>
+  <g fill="#000"><circle cx="280" cy="52" r="16"/><circle cx="508" cy="280" r="10"/><circle cx="280" cy="508" r="10"/><circle cx="52" cy="280" r="10"/><circle cx="171" cy="84" r="8"/><circle cx="389" cy="84" r="8"/><circle cx="171" cy="476" r="8"/><circle cx="389" cy="476" r="8"/>
+    <path d="M280 244c-32 2-49 18-49 41 0 29 23 48 49 48 27 0 49-19 49-48 0-23-18-39-49-41Z"/>
+  </g>
+  <path d="M280 243c-25-22-33-42-22-63 25 15 34 37 22 63Zm1 1c25-22 33-42 22-63-25 15-34 37-22 63Z" fill="#fff" stroke="#000" stroke-width="3"/>
+</svg>
