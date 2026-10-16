@@ -88,5 +88,5 @@ export function createNatalSolar({root,onSelect,onEarth,onLunarOpen=()=>{}}){
  }
  window.addEventListener('pagehide',event=>{if(!event.persisted)clear();});
  window.addEventListener('pageshow',event=>{if(event.persisted)scene?.resize();});
- return {setChart,clear,selectFromChart,closeLunar:()=>lunarUI.close({restoreFocus:false}),revealSelection(){if(bodyKey){scene?.selectBody(bodyKey,{focus:bodyKey==='moon'?'pair':true});sync();}},resize:()=>scene?.resize(),bodyButton:key=>buttons.querySelector(`[data-natal-solar-body="${key}"]`)};
+ return {setChart,clear,selectFromChart,showLunarCycle(){view='earth-moon';scene?.setView(view);scene?.resetView();sync();},closeLunar:()=>lunarUI.close({restoreFocus:false}),revealSelection(){if(bodyKey){scene?.selectBody(bodyKey,{focus:bodyKey==='moon'?'pair':true});sync();}},resize:()=>scene?.resize(),bodyButton:key=>buttons.querySelector(`[data-natal-solar-body="${key}"]`)};
 }

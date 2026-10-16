@@ -3,6 +3,7 @@ import {TAROT_CARDS,recommendArcana} from './natal-tarot.js';
 import {chartSVG,cardSVG,formatDegree,escapeHTML as e} from './natal-visuals.js';
 import {describeSelection} from './natal-reading.js';
 import {createNatalSolar} from './natal-solar.js';
+import {createNatalPersonalReading} from './natal-personal.js';
 
 const $=selector=>document.querySelector(selector);
 const form=$('#natal-form');
@@ -13,10 +14,11 @@ const localToday=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.g
 const signName=p=>Number.isInteger(p?.signIndex)?SIGNS[p.signIndex].name:(p?.possibleSignIndices||[]).map(i=>SIGNS[i]?.name).filter(Boolean).join(' / ')||'Non disponibile';
 const uncertain=p=>p?.signCertain===false||(p?.possibleSignIndices?.length>1);
 const natalSolar=form?createNatalSolar({root:$('#natal-solar-panel'),onSelect:showSelection,onEarth:showEarthInfo,onLunarOpen:showLunarInfo}):null;
+const personalReading=form?createNatalPersonalReading({root:$('#natal-personal-reading'),toggle:$('#natal-personal-toggle'),onExplore:()=>{setDisplayMode('solar');natalSolar.showLunarCycle();$('#natal-solar-title').tabIndex=-1;$('#natal-solar-title').focus({preventScroll:true});$('#natal-solar-panel').scrollIntoView({behavior:smooth(),block:'start'});}}):null;
 const aspectsLabels={conjunction:'Congiunzione',opposition:'Opposizione',trine:'Trigono',square:'Quadratura',sextile:'Sestile'};
 
 function error(message){const box=$('#natal-error');box.textContent=message;box.hidden=!message;}
-function invalidate(){calculationVersion++;if($('#natal-wheel-dialog').open)$('#natal-wheel-dialog').close();natalSolar?.clear();currentChart=null;selectedChartItem=null;$('#natal-wheel-reading').hidden=true;$('#natal-wheel-reading').replaceChildren();$('#natal-result').hidden=true;$('#natal-empty').hidden=false;$('#natal-recommendations').hidden=true;error('');}
+function invalidate(){calculationVersion++;personalReading?.clear();if($('#natal-wheel-dialog').open)$('#natal-wheel-dialog').close();natalSolar?.clear();currentChart=null;selectedChartItem=null;$('#natal-wheel-reading').hidden=true;$('#natal-wheel-reading').replaceChildren();$('#natal-result').hidden=true;$('#natal-empty').hidden=false;$('#natal-recommendations').hidden=true;error('');}
 function clearTimeChoice(){$('#time-choice').hidden=true;$('#time-choice-options').replaceChildren();}
 function setPlace(place){
  selectedPlace=place;const parts=Object.fromEntries(new Intl.DateTimeFormat('en',{timeZone:place.timezone,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).map(p=>[p.type,p.value]));$('#birth-date').max=`${parts.year}-${parts.month}-${parts.day}`;invalidate();clearTimeChoice();$('#place-results').hidden=true;
@@ -138,8 +140,8 @@ function renderResult(chart,input,place,engine){
  $('#natal-big-three').innerHTML=bigThree(chart);$('#natal-chart').innerHTML=chartSVG(chart,{interactive:true});setWheelZoom(100);renderWheelChoices(chart);
  const warnings=Array.isArray(chart.warnings)?chart.warnings.map(w=>typeof w==='string'?w:w.message||'').filter(Boolean):[];
  $('#natal-chart-note').textContent=[chart.unknownTime?`Ruota di riferimento alle ${referenceTime(chart)} locali. Senza un’ora attendibile, Ascendente e case restano aperti.`:'Zodiaco tropicale · Case a segno intero · ASC: Ascendente · MC: Medio Cielo. Le tacche indicano le posizioni esatte; i simboli sono distanziati per leggibilità.',...warnings].join(' ');
- setDisplayMode('solar');natalSolar.setChart(chart,engine);renderPlacements(chart);renderRecommendations(chart);
- $('#natal-result-title').focus({preventScroll:true});$('#natal-result').scrollIntoView({behavior:smooth(),block:'start'});
+ setDisplayMode('solar');natalSolar.setChart(chart,engine);renderPlacements(chart);renderRecommendations(chart);personalReading.setChart(chart,engine);
+ personalReading.show();
 }
 if(form){
  $('#birth-date').max=localToday();$('#empty-wheel').innerHTML=chartSVG(null);
