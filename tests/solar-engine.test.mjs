@@ -140,6 +140,19 @@ test('outer trajectories can extend beyond the selectable epoch range', () => {
   assert.throws(() => computeSolarSystem(futureTrack.endDate, options), code('DATE_OUT_OF_RANGE'));
 });
 
+test('one UTC day before 1900 supports positive birth timezones without opening the rest of 1899', () => {
+  assert.equal(SOLAR_DATE_RANGE.min, '1899-12-31T00:00:00.000Z');
+  for (const date of [SOLAR_DATE_RANGE.min, '1899-12-31T15:00:00Z']) {
+    const state = computeSolarSystem(date, options);
+    assert.equal(new Date(state.date).getTime(), new Date(date).getTime());
+    assert.ok(state.moonGeocentric.every(Number.isFinite));
+    assert.ok(norm(state.moonGeocentric) > 0.0022 && norm(state.moonGeocentric) < 0.0029);
+    const orbit = sampleOrbit('moon', date, { ...options, samples: 16 });
+    closeVector(orbit.points[8], state.moonGeocentric, 1e-10);
+  }
+  assert.throws(() => computeSolarSystem('1899-12-30T23:59:59.999Z', options), code('DATE_OUT_OF_RANGE'));
+});
+
 test('the solar track is a twelve-year barycentric interval without inventing a solar orbital period', () => {
   const orbit = sampleOrbit('sun', epoch, { ...options, samples: 32 }), state = computeSolarSystem(epoch, options);
   assert.equal(orbit.origin, 'ssb');
@@ -182,7 +195,7 @@ test('explicit timezone, timestamps and Dates agree without mutating caller data
 test('invalid dates, bodies, sampling counts and missing engines fail explicitly', () => {
   for (const date of [null, undefined, '', '2026-10-16', '2026-10-16T12:00:00', Number.NaN, Infinity, -Infinity, new Date(Number.NaN), {}, '2026-99-99T12:00:00Z', '2026-02-30T12:00:00Z', '2026-02-29T12:00:00+02:00', '1900-02-29T12:00:00Z', '2026-04-31T12:00:00Z', '2026-04-30T24:00:00Z']) assert.throws(() => computeSolarSystem(date, options), code('INVALID_DATE'));
   assert.equal(computeSolarSystem('2000-02-29T12:00:00Z', options).date, '2000-02-29T12:00:00.000Z');
-  for (const date of ['1899-12-31T23:59:59Z', '2101-01-01T00:00:00Z']) assert.throws(() => computeSolarSystem(date, options), code('DATE_OUT_OF_RANGE'));
+  for (const date of ['1899-12-30T23:59:59Z', '2101-01-01T00:00:00Z']) assert.throws(() => computeSolarSystem(date, options), code('DATE_OUT_OF_RANGE'));
   assert.throws(() => computeSolarSystem(epoch, { engine: {} }), code('MISSING_ENGINE'));
   assert.throws(() => sampleOrbit('pluto', epoch, options), code('INVALID_BODY'));
   for (const samples of [0, 15, 2049, 20.5, Number.NaN, Infinity, '192']) assert.throws(() => sampleOrbit('earth', epoch, { ...options, samples }), code('INVALID_SAMPLES'));

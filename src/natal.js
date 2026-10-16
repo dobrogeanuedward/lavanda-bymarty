@@ -2,19 +2,21 @@ import {SIGNS,calculateChart,resolveBirthTime} from './natal-engine.js';
 import {TAROT_CARDS,recommendArcana} from './natal-tarot.js';
 import {chartSVG,cardSVG,formatDegree,escapeHTML as e} from './natal-visuals.js';
 import {describeSelection} from './natal-reading.js';
+import {createNatalSolar} from './natal-solar.js';
 
 const $=selector=>document.querySelector(selector);
 const form=$('#natal-form');
 let selectedPlace=null,currentChart=null,enginePromise=null,searchController=null,searchVersion=0,calculationVersion=0;
-let selectedChartItem=null,lastSelectionTrigger=null,wheelZoom=100,wheelScrollBeforeDialog=0;
+let selectedChartItem=null,lastSelectionTrigger=null,wheelZoom=100,wheelScrollBeforeDialog=0,displayMode='solar';
 const smooth=()=>matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth';
 const localToday=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
 const signName=p=>Number.isInteger(p?.signIndex)?SIGNS[p.signIndex].name:(p?.possibleSignIndices||[]).map(i=>SIGNS[i]?.name).filter(Boolean).join(' / ')||'Non disponibile';
 const uncertain=p=>p?.signCertain===false||(p?.possibleSignIndices?.length>1);
+const natalSolar=form?createNatalSolar({root:$('#natal-solar-panel'),onSelect:showSelection,onEarth:showEarthInfo}):null;
 const aspectsLabels={conjunction:'Congiunzione',opposition:'Opposizione',trine:'Trigono',square:'Quadratura',sextile:'Sestile'};
 
 function error(message){const box=$('#natal-error');box.textContent=message;box.hidden=!message;}
-function invalidate(){calculationVersion++;if($('#natal-wheel-dialog').open)$('#natal-wheel-dialog').close();currentChart=null;selectedChartItem=null;$('#natal-wheel-reading').hidden=true;$('#natal-wheel-reading').replaceChildren();$('#natal-result').hidden=true;$('#natal-empty').hidden=false;$('#natal-recommendations').hidden=true;error('');}
+function invalidate(){calculationVersion++;if($('#natal-wheel-dialog').open)$('#natal-wheel-dialog').close();natalSolar?.clear();currentChart=null;selectedChartItem=null;$('#natal-wheel-reading').hidden=true;$('#natal-wheel-reading').replaceChildren();$('#natal-result').hidden=true;$('#natal-empty').hidden=false;$('#natal-recommendations').hidden=true;error('');}
 function clearTimeChoice(){$('#time-choice').hidden=true;$('#time-choice-options').replaceChildren();}
 function setPlace(place){
  selectedPlace=place;const parts=Object.fromEntries(new Intl.DateTimeFormat('en',{timeZone:place.timezone,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).map(p=>[p.type,p.value]));$('#birth-date').max=`${parts.year}-${parts.month}-${parts.day}`;invalidate();clearTimeChoice();$('#place-results').hidden=true;
@@ -74,17 +76,29 @@ function updateSelectionState(){
   node.setAttribute('aria-pressed',String(Boolean(selected)));node.classList.toggle('is-selected',Boolean(selected));
  }
 }
+function setDisplayMode(mode){
+ displayMode=mode==='wheel'?'wheel':'solar';$('#natal-wheel-panel').hidden=displayMode!=='wheel';$('#natal-solar-panel').hidden=displayMode!=='solar';
+ for(const button of document.querySelectorAll('button[data-natal-mode]'))button.setAttribute('aria-pressed',String(button.dataset.natalMode===displayMode));
+ if(displayMode==='solar'){natalSolar?.resize();natalSolar?.revealSelection();}
+}
 function showSelection(selection,trigger){
  if(!currentChart)return;const reading=describeSelection(currentChart,selection);if(!reading)return;
+ natalSolar?.selectFromChart(selection);renderReading(reading,trigger);
+}
+function showEarthInfo(trigger){
+ if(!currentChart)return;
+ renderReading({type:'reference',key:'earth',kicker:'Il punto di osservazione',title:'La Terra, nella tua mappa.',intro:'La carta natale osserva il cielo dalla Terra. Nel modello 3D la Terra compare come corpo fisico in orbita intorno al Sole; nella ruota non le attribuiamo un segno o un Arcano.',sections:[{title:'La Luna intorno alla Terra',text:'Scegli “Terra e Luna” per vedere la traiettoria lunare da vicino. Il modello conserva l’istante della carta e le distanze proporzionali, con raggi amplificati per renderli visibili.'}],related:[{type:'planet',key:'moon',label:'☽ La Luna: lettura e Arcani'}]},trigger);
+}
+function renderReading(reading,trigger){
  selectedChartItem={type:reading.type,key:reading.key};lastSelectionTrigger=trigger;
  $('#natal-chart').innerHTML=chartSVG(currentChart,{interactive:true,selected:selectedChartItem});updateSelectionState();
  const panel=$('#natal-wheel-reading');panel.hidden=false;
  const cards=(reading.cards||[]).flatMap(item=>{const card=TAROT_CARDS.find(c=>c.number===item.card);return card?[{card,reason:item.reason}]:[];});
- panel.innerHTML=`<header class="natal-reading-header"><div><p class="section-caption">${e(reading.kicker)}</p><h3 id="natal-selection-title">${e(reading.title)}</h3></div><button type="button" class="natal-reading-close" data-close-reading aria-label="Chiudi l’approfondimento">×</button></header>${reading.caveat?`<p class="natal-reading-caveat">${e(reading.caveat)}</p>`:''}<p class="natal-reading-intro">${e(reading.intro)}</p>${(reading.sections||[]).map(section=>`<section><h4>${e(section.title)}</h4><p>${e(section.text)}</p></section>`).join('')}${reading.questions?.length?`<section class="natal-reading-questions"><h4>Domande per la tua esplorazione</h4><ul>${reading.questions.map(question=>`<li>${e(question)}</li>`).join('')}</ul></section>`:''}${cards.length?`<section><h4>Gli Arcani collegati</h4><p class="natal-reading-card-hint">Apri una carta per seguirne il significato e il gesto da esplorare.</p><div class="natal-reading-cards">${cards.map(({card,reason})=>`<details class="natal-reading-card"><summary><span class="natal-reading-card-thumb">${cardSVG(card)}</span><span><strong>${e(card.roman)} · ${e(card.name)}</strong><small>${e(reason)}</small></span><b aria-hidden="true">＋</b></summary><div><p>${e(card.description)}</p><blockquote>${e(card.question)}</blockquote><p>${e(card.practice)}</p></div></details>`).join('')}</div></section>`:''}${reading.related?.length?`<nav class="natal-reading-related" aria-label="Continua nella carta"><p>Segui un’altra corrispondenza</p><div>${reading.related.map(item=>selectionButton(item)).join('')}</div></nav>`:''}<button type="button" class="natal-small-button natal-reading-back" data-close-reading>Torna alla ruota ↑</button><p class="natal-reading-footnote">Una lettura simbolica di Lavanda, composta a partire dalla tua carta. Le associazioni tradizionali e le scelte editoriali sono spiegate nel metodo.</p>`;
+ panel.innerHTML=`<header class="natal-reading-header"><div><p class="section-caption">${e(reading.kicker)}</p><h3 id="natal-selection-title">${e(reading.title)}</h3></div><button type="button" class="natal-reading-close" data-close-reading aria-label="Chiudi l’approfondimento">×</button></header>${reading.caveat?`<p class="natal-reading-caveat">${e(reading.caveat)}</p>`:''}<p class="natal-reading-intro">${e(reading.intro)}</p>${(reading.sections||[]).map(section=>`<section><h4>${e(section.title)}</h4><p>${e(section.text)}</p></section>`).join('')}${reading.questions?.length?`<section class="natal-reading-questions"><h4>Domande per la tua esplorazione</h4><ul>${reading.questions.map(question=>`<li>${e(question)}</li>`).join('')}</ul></section>`:''}${cards.length?`<section><h4>Gli Arcani collegati</h4><p class="natal-reading-card-hint">Apri una carta per seguirne il significato e il gesto da esplorare.</p><div class="natal-reading-cards">${cards.map(({card,reason})=>`<details class="natal-reading-card"><summary><span class="natal-reading-card-thumb">${cardSVG(card)}</span><span><strong>${e(card.roman)} · ${e(card.name)}</strong><small>${e(reason)}</small></span><b aria-hidden="true">＋</b></summary><div><p>${e(card.description)}</p><blockquote>${e(card.question)}</blockquote><p>${e(card.practice)}</p></div></details>`).join('')}</div></section>`:''}${reading.related?.length?`<nav class="natal-reading-related" aria-label="Continua nella carta"><p>Segui un’altra corrispondenza</p><div>${reading.related.map(item=>selectionButton(item)).join('')}</div></nav>`:''}<button type="button" class="natal-small-button natal-reading-back" data-close-reading>Torna alla mappa ↑</button><p class="natal-reading-footnote">Una lettura simbolica di Lavanda, composta a partire dalla tua carta. Le associazioni tradizionali e le scelte editoriali sono spiegate nel metodo.</p>`;
  updateSelectionState();const closeReading=()=>{
-  const item=selectedChartItem;selectedChartItem=null;panel.hidden=true;$('#natal-chart').innerHTML=chartSVG(currentChart,{interactive:true});updateSelectionState();
+  const item=selectedChartItem;selectedChartItem=null;natalSolar?.selectFromChart(null);panel.hidden=true;$('#natal-chart').innerHTML=chartSVG(currentChart,{interactive:true});updateSelectionState();
   const fallback=document.querySelector(`#natal-chart [data-chart-type="${item.type}"][data-chart-key="${CSS.escape(String(item.key))}"]`);
-  (lastSelectionTrigger?.isConnected?lastSelectionTrigger:fallback)?.focus();
+  [lastSelectionTrigger,fallback,natalSolar?.bodyButton(item.key),document.querySelector('button[data-natal-mode][aria-pressed="true"]')].find(node=>node?.isConnected&&node.getClientRects().length)?.focus();
  };for(const button of panel.querySelectorAll('[data-close-reading]'))button.addEventListener('click',closeReading);
  panel.scrollIntoView({behavior:smooth(),block:'start'});panel.focus({preventScroll:true});
 }
@@ -109,7 +123,8 @@ function renderRecommendations(chart){
  $('#natal-recommendation-note').textContent=chart.unknownTime?'Percorso basato sui segni certi della giornata e sui due luminari. Le associazioni ai segni incerti sono escluse.':'Il segno del Sole apre il percorso; seguono Luna e Ascendente. Gli Arcani planetari dei due luminari aggiungono due ulteriori porte. Le corrispondenze coincidenti si uniscono.';
  $('#natal-recommendations').hidden=false;
 }
-function renderResult(chart,input,place){
+function renderResult(chart,input,place,engine){
+ if($('#natal-wheel-dialog').open)$('#natal-wheel-dialog').close();
  currentChart=chart;selectedChartItem=null;$('#natal-wheel-reading').hidden=true;$('#natal-wheel-reading').replaceChildren();$('#natal-empty').hidden=true;$('#natal-result').hidden=false;
  $('#natal-result-title').textContent=chart.unknownTime?'La mappa del tuo giorno.':'Il cielo della tua nascita.';
  const date=new Intl.DateTimeFormat('it',{dateStyle:'long',timeZone:'UTC'}).format(new Date(`${input.date}T12:00:00Z`));
@@ -117,7 +132,7 @@ function renderResult(chart,input,place){
  $('#natal-big-three').innerHTML=bigThree(chart);$('#natal-chart').innerHTML=chartSVG(chart,{interactive:true});setWheelZoom(100);renderWheelChoices(chart);
  const warnings=Array.isArray(chart.warnings)?chart.warnings.map(w=>typeof w==='string'?w:w.message||'').filter(Boolean):[];
  $('#natal-chart-note').textContent=[chart.unknownTime?`Ruota di riferimento alle ${referenceTime(chart)} locali. Senza un’ora attendibile, Ascendente e case restano aperti.`:'Zodiaco tropicale · Case a segno intero · ASC: Ascendente · MC: Medio Cielo. Le tacche indicano le posizioni esatte; i simboli sono distanziati per leggibilità.',...warnings].join(' ');
- renderPlacements(chart);renderRecommendations(chart);
+ setDisplayMode('solar');natalSolar.setChart(chart,engine);renderPlacements(chart);renderRecommendations(chart);
  $('#natal-result-title').focus({preventScroll:true});$('#natal-result').scrollIntoView({behavior:smooth(),block:'start'});
 }
 if(form){
@@ -126,6 +141,7 @@ if(form){
  $('#natal-timezones').innerHTML=zones.map(zone=>`<option value="${e(zone)}"></option>`).join('');
  $('#natal-deck-grid').innerHTML=TAROT_CARDS.map(card=>`<button type="button" class="natal-deck-card" data-arcana="${card.number}" aria-label="Esplora ${e(card.name)}">${cardSVG(card)}<span>${e(card.roman)} · ${e(card.name)}</span></button>`).join('');
  document.querySelector('.natal-page').addEventListener('click',event=>{
+  const mode=event.target.closest('button[data-natal-mode]');if(mode){setDisplayMode(mode.dataset.natalMode);return;}
   const target=event.target.closest('[data-chart-type]');if(target){showSelection({type:target.dataset.chartType,key:target.dataset.chartKey},target);return;}
   const button=event.target.closest('[data-arcana]');if(button)showCard(button.dataset.arcana,button);
  });
@@ -143,11 +159,11 @@ if(form){
  $('#natal-zoom-out').addEventListener('click',()=>setWheelZoom(wheelZoom-40));
  $('#natal-zoom-fit').addEventListener('click',()=>setWheelZoom(100));
  $('#natal-open-wheel').addEventListener('click',()=>{
-  wheelScrollBeforeDialog=window.scrollY;$('#natal-dialog-mount').append($('#natal-explorer'));$('#natal-wheel-dialog').showModal();$('#natal-close-wheel').focus();
+  wheelScrollBeforeDialog=window.scrollY;$('#natal-dialog-mount').append($('#natal-explorer'));$('#natal-wheel-dialog').showModal();natalSolar.resize();$('#natal-close-wheel').focus();
  });
  $('#natal-close-wheel').addEventListener('click',()=>$('#natal-wheel-dialog').close());
  $('#natal-wheel-dialog').addEventListener('close',()=>{
-  $('#natal-explorer-slot').append($('#natal-explorer'));if(currentChart){window.scrollTo({top:wheelScrollBeforeDialog,behavior:'instant'});$('#natal-open-wheel').focus({preventScroll:true});}
+  $('#natal-explorer-slot').append($('#natal-explorer'));natalSolar.resize();if(currentChart){window.scrollTo({top:wheelScrollBeforeDialog,behavior:'instant'});$('#natal-open-wheel').focus({preventScroll:true});}
  });
  $('#search-place').addEventListener('click',searchPlaces);
  $('#birth-place').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();searchPlaces();}});
@@ -186,7 +202,7 @@ if(form){
    }
    $('#calculate-natal').disabled=true;$('#calculate-natal').textContent='Disegno la tua mappa…';
    const engine=await loadAstronomy();if(version!==calculationVersion)return;const raw=calculateChart(input,{engine});const chart={...raw,unknownTime:raw.meta.unknownTime,warnings:raw.meta.warnings};
-   renderResult(chart,input,place);
+   renderResult(chart,input,place,engine);
   }catch(err){if(version===calculationVersion)error(err.message||'Non riesco a calcolare questa carta. Controlla i dati e riprova.');}
   finally{$('#calculate-natal').disabled=false;$('#calculate-natal').innerHTML='Calcola la carta natale <span aria-hidden="true">✦</span>';}
  });
@@ -195,6 +211,6 @@ if(form){
   if(!currentChart)return;const blob=new Blob([chartSVG(currentChart)],{type:'image/svg+xml;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='lavanda-carta-natale.svg';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
  });
  $('#natal-reset').addEventListener('click',()=>{
-  searchVersion++;searchController?.abort();$('#search-place').disabled=false;form.reset();$('#birth-date').max=localToday();selectedPlace=null;invalidate();clearTimeChoice();$('#birth-time').disabled=false;$('#birth-time').required=true;$('#time-help').textContent='Usa l’ora locale riportata sul documento di nascita.';$('#selected-place').hidden=true;$('#place-results').hidden=true;$('#place-status').textContent='';$('#natal-card-detail').hidden=true;$('#birth-date').focus();
+  searchVersion++;searchController?.abort();$('#search-place').disabled=false;form.reset();$('#birth-date').max=localToday();selectedPlace=null;invalidate();clearTimeChoice();$('#birth-time').disabled=false;$('#birth-time').required=true;$('#time-help').textContent='Usa l’ora locale riportata sul documento di nascita.';$('#selected-place').hidden=true;$('#place-results').hidden=true;$('#place-status').textContent='';$('#natal-card-detail').hidden=true;for(const id of ['natal-birth-summary','natal-big-three','natal-chart','natal-placements','natal-aspects','natal-cards','natal-wheel-choices','natal-chart-note','natal-card-detail'])$('#'+id).replaceChildren();$('#birth-date').focus();
  });
 }

@@ -1,7 +1,11 @@
 /** Geometric heliocentric ephemerides, AU, fixed mean ecliptic/equinox J2000. */
 export const AU_KM = 149597870.7;
 export const SOLAR_FRAME = 'J2000 ecliptic';
-export const SOLAR_DATE_RANGE = Object.freeze({ min: '1900-01-01T00:00:00.000Z', max: '2100-12-31T23:59:59.999Z' });
+// One UTC day before the 1900 civil-date minimum preserves positive timezones.
+// Observatory controls and SolarClock still start at local/displayed year 1900.
+export const SOLAR_DATE_RANGE = Object.freeze({ min: '1899-12-31T00:00:00.000Z', max: '2100-12-31T23:59:59.999Z' });
+const MIN_INSTANT_MS = Date.parse(SOLAR_DATE_RANGE.min);
+const MAX_INSTANT_MS = Date.parse(SOLAR_DATE_RANGE.max);
 const DAY_MS = 86400000;
 const JULIAN_YEAR_DAYS = 365.25;
 const PHYSICAL_SOURCE = 'https://ssd.jpl.nasa.gov/planets/phys_par.html';
@@ -40,7 +44,7 @@ function instant(value, { extended = false } = {}) {
   const date = new Date(value instanceof Date ? value.getTime() : value);
   if (!Number.isFinite(date.getTime())) throw new SolarError('INVALID_DATE', 'La data non corrisponde a un istante valido.');
   const year = date.getUTCFullYear();
-  if (year < (extended ? 1700 : 1900) || year > (extended ? 2300 : 2100)) throw new SolarError('DATE_OUT_OF_RANGE', extended ? 'Il campione di traiettoria deve restare fra il 1700 e il 2300.' : 'Scegli una data fra il 1900 e il 2100.');
+  if (extended ? year < 1700 || year > 2300 : date.getTime() < MIN_INSTANT_MS || date.getTime() > MAX_INSTANT_MS) throw new SolarError('DATE_OUT_OF_RANGE', extended ? 'Il campione di traiettoria deve restare fra il 1700 e il 2300.' : 'L’istante UTC è fuori dall’intervallo supportato dal modello.');
   return date;
 }
 

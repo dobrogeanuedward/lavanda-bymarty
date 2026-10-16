@@ -22,7 +22,7 @@ Per il Sole si campiona invece una **finestra scelta di dodici anni**, da sei an
 
 `sampleOrbitAsync` produce gli stessi dati in blocchi di 24 punti, cedendo il controllo fra i blocchi. Accetta `AbortSignal`; il cambio di epoca può annullare una traccia precedente con `AbortError`.
 
-Gli istanti selezionabili sono dal 1900 al 2100 compresi. Le tracce più lunghe possono oltrepassare questi estremi; i campioni sono limitati al 1700–2300. Per esempio, un percorso completo di Nettuno centrato nel 2100 arriva circa al 2183. Questo allargamento serve a mostrare la traiettoria, senza estendere i controlli temporali dell’interfaccia.
+Gli istanti selezionabili nell’osservatorio sono dal 1900 al 2100 compresi. Il motore ammette inoltre il 31 dicembre 1899 UTC: una nascita locale del primo gennaio 1900, in un fuso positivo, può corrispondere al giorno UTC precedente. Il collegamento alla carta conserva quell’istante senza correzioni o arrotondamenti; il controllo temporale dell’osservatorio resta dal 1900. Le tracce più lunghe possono oltrepassare questi estremi; i campioni sono limitati al 1700–2300. Per esempio, un percorso completo di Nettuno centrato nel 2100 arriva circa al 2183. Questo allargamento serve a mostrare la traiettoria, senza estendere i controlli temporali dell’interfaccia.
 
 ## Dati fisici e scelte grafiche
 
@@ -91,3 +91,11 @@ Altri controlli verificano l’identità Terra–Luna, il cambio di origine elio
 Three.js 0.186.1 è fissato nel lockfile e servito con i suoi moduli e la licenza dallo stesso dominio; nessun CDN esegue codice. Il modello richiede WebGL 2; in sua assenza le schede e la tabella conservano le effemeridi calcolate. Le viste sono pianeti interni, sistema completo, Terra–Luna e Sole–baricentro. Gli anelli principali C/B/A di Saturno usano i limiti della [scheda NASA](https://nssdc.gsfc.nasa.gov/planetary/factsheet/satringfact.html), orientati secondo il polo del modello IAU.
 
 Il tempo parte a 1× sull’orologio UTC del dispositivo; accelerazioni, pausa, data scelta e ritorno ad Adesso sono espliciti. Le posizioni vengono ricalcolate fino a 30 volte al secondo quando il tempo è accelerato; la tabella si aggiorna una volta al secondo. Il renderer limita il pixel ratio, sospende il disegno fuori schermo e non applica rotazioni automatiche della camera. La vista espansa usa un dialog nativo, conserva lo stesso canvas e ripristina il focus alla chiusura.
+
+## Collegamento alla carta natale
+
+`createNatalSolarModel` usa soltanto `chart.meta.utc`: non ricalcola il fuso dalla form, non usa l’orologio corrente e non arrotonda i secondi UTC storici. Il modello è un’istantanea. Le scelte durante un’ora civile ripetuta producono istanti e posizioni distinti; l’ora ignota resta un riferimento rappresentativo, conservando le incertezze della carta.
+
+Il riferimento geometrico eliocentrico J2000 del 3D non coincide con quello apparente geocentrico tropicale della ruota. Le letture vengono sempre richieste alla carta originale attraverso `describeSelection`, mai dedotte da un angolo della camera o da una longitudine eliocentrica. I nove corpi condivisi mantengono la stessa chiave; Terra, Plutone, segni e angoli non acquisiscono associazioni inventate.
+
+Nella vista Terra–Luna, `selectBody('moon', { focus: 'pair' })` conserva il centro della camera sulla Terra e l’intera traccia lunare in vista. Il campionamento resta geocentrico e viene traslato sulla posizione terrestre allo stesso istante. Ruotare o ingrandire la camera non altera data, posizioni o letture. I test verificano UTC dei due rami DST, benchmark JPL, Luna rispetto alla Terra, corrispondenze di selezione, incertezza della giornata, secondi storici e primo giorno civile del 1900 con UTC nel 1899.

@@ -274,11 +274,16 @@ export async function createSolarScene({container,engine,onSelect=()=>{},onError
 
   function selectBody(key,{focus=false}={}){
     const object=bodyObjects.get(key);if(!object)return false;
+    if(![false,true,'pair'].includes(focus)||focus==='pair'&&!['earth','moon'].includes(key))throw new SolarSceneError('INVALID_FOCUS','La vista della coppia riguarda Terra e Luna.');
     selected=key;
-    if(!object.group.visible)setView(key==='moon'?'earth-moon':INNER.has(key)?'inner':'all');
+    const pair=focus==='pair'||focus===true&&(key==='moon'||view==='earth-moon'&&key==='earth');
+    if(pair&&view!=='earth-moon')setView('earth-moon');
+    else if(!object.group.visible)setView(key==='moon'?'earth-moon':INNER.has(key)?'inner':'all');
     applyVisibility();
     if(focus&&state){
-      if(view==='sun-barycenter'){fitView();}
+      // Keep the full geocentric lunar trajectory in view. Selecting the Moon
+      // changes the reading/highlight, while the camera continues to follow Earth.
+      if(pair||view==='sun-barycenter'){fitView();}
       else{
         flushControls();
         const direction=camera.position.clone().sub(controls.target).normalize();
@@ -398,6 +403,7 @@ export async function createSolarScene({container,engine,onSelect=()=>{},onError
 
   resize();applyVisibility();fitView();
   return {update,setView,selectBody,setEpoch,getScaleInfo,resize,dispose,
+    clearSelection(){selected=null;applyVisibility();invalidate();},
     setLabels(value){labelsEnabled=Boolean(value);invalidate();},
     setOrbits(value){orbitsEnabled=Boolean(value);applyVisibility();invalidate();},
     setSizeMode(value){if(!['visible','real'].includes(value))throw new SolarSceneError('INVALID_SIZE_MODE','Scegli dimensioni leggibili o fisiche.');sizeMode=value;applyVisibility();invalidate();},
