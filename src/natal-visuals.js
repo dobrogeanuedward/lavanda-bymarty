@@ -1,3 +1,5 @@
+import {SIGNS} from './natal-engine.js';
+
 export const escapeHTML=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const point=(angle,r,c=320)=>[c+r*Math.cos(angle*Math.PI/180),c+r*Math.sin(angle*Math.PI/180)];
 const coords=p=>p.map(n=>n.toFixed(2)).join(',');
@@ -29,35 +31,60 @@ export function separateLabels(planets){
  return order.map(p=>({...p,labelLongitude:norm(p.labelLongitude-drift)}));
 }
 
-export function chartSVG(chart){
- const empty=!chart;const unknown=chart?.meta?.unknownTime??chart?.unknownTime;const asc=chart?.ascendant;const origin=asc?.longitude??0;
+export function chartSVG(chart,{interactive=false,selected=null}={}){
+ const empty=!chart;const active=interactive===true&&!empty;const unknown=chart?.meta?.unknownTime??chart?.unknownTime;const asc=chart?.ascendant;const origin=asc?.longitude??0;
+ const selectedItem=(type,key)=>active&&selected?.type===type&&selected?.key===key;
+ const groupAttributes=(type,key,label)=>active?` class="natal-wheel-${type}${selectedItem(type,key)?' is-selected':''}" role="button" tabindex="0" aria-label="${escapeHTML(label)}" aria-pressed="${selectedItem(type,key)}" data-chart-type="${type}" data-chart-key="${escapeHTML(key)}"`:'';
+ const decoration='class="natal-wheel-decoration" pointer-events="none" aria-hidden="true"';
+ const textAttributes='pointer-events="none" aria-hidden="true"';
+ const signNames=p=>(p.possibleSignIndices||[]).filter(index=>Number.isInteger(index)&&SIGNS[index]).map(index=>SIGNS[index].name);
+ const placementLabel=p=>{
+  const uncertain=p.signCertain===false||(p.possibleSignIndices?.length>1);
+  if(uncertain){const names=signNames(p);return `${p.name}, ${names.length>1?`segni possibili ${names.join(' o ')}`:names.length?`segno possibile ${names[0]}`:'segno non determinato'}, esplora significato e Arcani`;}
+  return `${p.name}${Number.isInteger(p.signIndex)&&SIGNS[p.signIndex]?` in ${SIGNS[p.signIndex].name}`:''}, esplora significato e Arcani`;
+ };
  const angle=longitude=>180-norm(longitude-origin);
- const line=(longitude,r1,r2,attrs='')=>`<line x1="${point(angle(longitude),r1)[0]}" y1="${point(angle(longitude),r1)[1]}" x2="${point(angle(longitude),r2)[0]}" y2="${point(angle(longitude),r2)[1]}" ${attrs}/>`;
+ const line=(longitude,r1,r2,attrs='')=>`<line x1="${point(angle(longitude),r1)[0]}" y1="${point(angle(longitude),r1)[1]}" x2="${point(angle(longitude),r2)[0]}" y2="${point(angle(longitude),r2)[1]}" ${decoration} ${attrs}/>`;
  const signs=SIGN_GLYPHS.map((glyph,i)=>{
   const a=angle(i*30),end=a-30,p=point(a-15,267);
-  return `<path d="${wedge(a,end,244,290)}" fill="${ELEMENT_COLORS[i%4]}" stroke="#131116" stroke-width=".7"/><text x="${p[0]}" y="${p[1]+9}" font-size="27" text-anchor="middle">${glyph}</text>`;
+  return `<g${groupAttributes('sign',SIGNS[i].key,`${SIGNS[i].name}, esplora significato e Arcani`)}><path${active?' class="natal-wheel-hit"':''} d="${wedge(a,end,244,290)}" fill="${ELEMENT_COLORS[i%4]}" stroke="#131116" stroke-width=".7"/><text class="natal-wheel-glyph" x="${p[0]}" y="${p[1]+9}" font-size="27" text-anchor="middle" ${textAttributes}>${glyph}</text></g>`;
  }).join('');
  const ticks=Array.from({length:72},(_,i)=>line(i*5,244,i%6===0?230:239,'stroke="#131116" stroke-width=".65"')).join('');
  const houses=(chart?.houses||[]).map(h=>{
   const p=point(angle(h.longitude+15),221);
-  return `${line(h.longitude,145,244,'stroke="#131116" stroke-width=".65" opacity=".35"')}<text x="${p[0]}" y="${p[1]+4}" font-size="11" fill="#555" text-anchor="middle">${h.number}</text>`;
+  return `${line(h.longitude,145,244,'stroke="#131116" stroke-width=".65" opacity=".35"')}<text class="natal-wheel-house-label" x="${p[0]}" y="${p[1]+4}" font-size="11" fill="#555" text-anchor="middle" ${textAttributes}>${h.number}</text>`;
  }).join('');
  const byKey=new Map((chart?.planets||[]).map(p=>[p.key,p]));
- const aspects=(chart?.aspects||[]).slice(0,18).map(a=>{
+ const aspectInput=chart?.aspects||[];
+ const isConnected=a=>active&&selected?.type==='planet'&&(selected.key===a.from||selected.key===a.to);
+ // Keep the selected planet's links visible even in a crowded chart.
+ const visibleAspects=active&&selected?.type==='planet'?[...aspectInput.filter(isConnected),...aspectInput.filter(a=>!isConnected(a))]:aspectInput;
+ const aspects=visibleAspects.slice(0,18).map(a=>{
   const p1=byKey.get(a.from),p2=byKey.get(a.to);if(!p1||!p2)return '';
   const x=point(angle(p1.longitude),142),y=point(angle(p2.longitude),142);
   const hard=['square','opposition'].includes(a.type);
-  return `<line x1="${x[0]}" y1="${x[1]}" x2="${y[0]}" y2="${y[1]}" stroke="${hard?'#a71862':'#382096'}" stroke-width="1" opacity=".25" ${a.type==='sextile'?'stroke-dasharray="4 4"':''}/>`;
+  const connected=isConnected(a);
+  return `<line x1="${x[0]}" y1="${x[1]}" x2="${y[0]}" y2="${y[1]}" class="natal-wheel-decoration natal-wheel-aspect${connected?' is-connected':''}" pointer-events="none" aria-hidden="true"${active?` data-from="${escapeHTML(a.from)}" data-to="${escapeHTML(a.to)}"`:''} stroke="${hard?'#a71862':'#382096'}" stroke-width="1" opacity=".25" ${a.type==='sextile'?'stroke-dasharray="4 4"':''}/>`;
  }).join('');
- const planets=separateLabels(chart?.planets||[]).map(p=>{
+ const placedPlanets=separateLabels(chart?.planets||[]);
+ const planets=placedPlanets.map(p=>{
   const actual=point(angle(p.longitude),232),tail=point(angle(p.longitude),211),label=point(angle(p.labelLongitude),185);
   const uncertain=p.signCertain===false||(p.possibleSignIndices?.length>1);
-  return `<g><title>${escapeHTML(`${p.name}: ${uncertain?'posizione all’istante rappresentativo':'longitudine'} ${p.longitude.toFixed(3)}°`)}</title><line x1="${actual[0]}" y1="${actual[1]}" x2="${tail[0]}" y2="${tail[1]}" stroke="#131116" stroke-width="1.3"/><line x1="${tail[0]}" y1="${tail[1]}" x2="${label[0]}" y2="${label[1]}" stroke="#777" stroke-width=".7"/><circle cx="${label[0]}" cy="${label[1]}" r="18" fill="#fff"/><text x="${label[0]}" y="${label[1]+8}" text-anchor="middle" font-size="25" fill="${uncertain?'#777':'#131116'}">${escapeHTML(p.glyph)}</text>${p.retrograde===true?`<text x="${label[0]+12}" y="${label[1]+18}" font-size="9">R</text>`:''}${uncertain?`<text x="${label[0]+13}" y="${label[1]-11}" font-size="12">?</text>`:''}</g>`;
+  const nearest=Math.min(...placedPlanets.filter(other=>other!==p).map(other=>{const next=point(angle(other.labelLongitude),185);return Math.hypot(next[0]-label[0],next[1]-label[1]);}));
+  // Keep one unit between neighboring hit disks; nearby symbols cannot steal input.
+  const hitRadius=Math.min(22,(nearest-1)/2);
+  return `<g${groupAttributes('planet',p.key,placementLabel(p))}><title>${escapeHTML(`${p.name}: ${unknown||uncertain?'posizione all’istante rappresentativo':'longitudine'} ${p.longitude.toFixed(3)}°`)}</title><line x1="${actual[0]}" y1="${actual[1]}" x2="${tail[0]}" y2="${tail[1]}" ${decoration} stroke="#131116" stroke-width="1.3"/><line x1="${tail[0]}" y1="${tail[1]}" x2="${label[0]}" y2="${label[1]}" ${decoration} stroke="#777" stroke-width=".7"/>${active?`<circle class="natal-wheel-hit" cx="${label[0]}" cy="${label[1]}" r="${hitRadius}" fill="transparent" pointer-events="all"/>`:''}<circle cx="${label[0]}" cy="${label[1]}" r="18" fill="#fff" ${textAttributes}/><text class="natal-wheel-glyph" x="${label[0]}" y="${label[1]+8}" text-anchor="middle" font-size="25" fill="${uncertain?'#777':'#131116'}" ${textAttributes}>${escapeHTML(p.glyph)}</text>${p.retrograde===true?`<text x="${label[0]+12}" y="${label[1]+18}" font-size="9" ${textAttributes}>R</text>`:''}${uncertain?`<text x="${label[0]+13}" y="${label[1]-11}" font-size="12" ${textAttributes}>?</text>`:''}</g>`;
  }).join('');
  const mc=chart?.midheaven;
  const mcp=mc?point(angle(mc.longitude),309):null;
- const angles=asc?`${line(asc.longitude,145,298,'stroke="#131116" stroke-width="2"')}<rect x="-7" y="309" width="38" height="22" rx="11" fill="#131116"/><text x="12" y="324" fill="#fff" font-size="11" text-anchor="middle">ASC</text>${mc?`${line(mc.longitude,145,295,'stroke="#382096" stroke-width="1.3" stroke-dasharray="4 4"')}<text x="${mcp[0]}" y="${mcp[1]+4}" fill="#382096" font-size="11" text-anchor="middle">MC</text>`:''}`:'';
- return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-8 -8 656 656" role="img" aria-label="${empty?'Ruota dei dodici segni zodiacali':unknown?'Mappa del giorno a un istante rappresentativo, senza Ascendente e case. Tutte le posizioni sono elencate sotto.':'Carta natale: pianeti, segni e case a segno intero. Tutte le posizioni sono elencate sotto.'}" style="font-family:Arial,sans-serif"><circle cx="320" cy="320" r="290" fill="#fff"/>${signs}${ticks}<circle cx="320" cy="320" r="145" fill="none" stroke="#131116" stroke-width=".5" opacity=".4"/>${houses}${aspects}${planets}${angles}<circle cx="320" cy="320" r="${empty?64:28}" fill="${empty?'#131116':'#fff'}"/><text x="320" y="${empty?340:330}" text-anchor="middle" font-size="${empty?65:32}" fill="${empty?'#b58cff':'#131116'}">✦</text></svg>`;
+ const mcBadge=mcp&&Math.abs(mcp[0]-12)<44&&Math.abs(mcp[1]-320)<44?[mcp[0],320+(mcp[1]<=320?-56:56)]:mcp;
+ const angleBadge=(key,name,body,x,y,glyph,fill,textFill)=>`<g${groupAttributes('angle',key,placementLabel({...body,name}))}>${active?`<rect class="natal-wheel-hit" x="${x-22}" y="${y-22}" width="44" height="44" rx="12" fill="transparent" pointer-events="all"/>`:''}<rect x="${x-19}" y="${y-11}" width="38" height="22" rx="11" fill="${fill}" ${textAttributes}/><text x="${x}" y="${y+4}" fill="${textFill}" font-size="11" text-anchor="middle" ${textAttributes}>${glyph}</text></g>`;
+ // Only the badges receive input; long angle lines never cover a sign sector.
+ // Near the polar circles ASC and MC can coincide visually. Move the MC label
+ // with a leader, retaining its true radial longitude and both hit targets.
+ const mcLeader=mcp&&mcBadge!==mcp?`<line x1="${mcp[0]}" y1="${mcp[1]}" x2="${mcBadge[0]}" y2="${mcBadge[1]}" ${decoration} stroke="#382096" stroke-width=".8"/>`:'';
+ const angles=asc?`${line(asc.longitude,145,298,'stroke="#131116" stroke-width="2"')}${mc?`${line(mc.longitude,145,295,'stroke="#382096" stroke-width="1.3" stroke-dasharray="4 4"')}${mcLeader}`:''}${angleBadge('ascendant','Ascendente',asc,12,320,'ASC','#131116','#fff')}${mc?angleBadge('midheaven','Medio Cielo',mc,mcBadge[0],mcBadge[1],'MC','#fff','#382096'):''}`:'';
+ return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-22 -22 684 684" role="${active?'group':'img'}" aria-label="${active?'Ruota interattiva: esplora segni, pianeti e angoli. ':''}${empty?'Ruota dei dodici segni zodiacali':unknown?'Mappa del giorno a un istante rappresentativo, senza Ascendente e case. Tutte le posizioni sono elencate sotto.':'Carta natale: pianeti, segni e case a segno intero. Tutte le posizioni sono elencate sotto.'}" style="font-family:Arial,sans-serif"><circle cx="320" cy="320" r="290" fill="#fff" ${textAttributes}/>${signs}${ticks}<circle cx="320" cy="320" r="145" fill="none" stroke="#131116" stroke-width=".5" opacity=".4" ${textAttributes}/>${houses}${aspects}${planets}${angles}<circle cx="320" cy="320" r="${empty?64:28}" fill="${empty?'#131116':'#fff'}" ${textAttributes}/><text x="320" y="${empty?340:330}" text-anchor="middle" font-size="${empty?65:32}" fill="${empty?'#b58cff':'#131116'}" ${textAttributes}>✦</text></svg>`;
 }
 
 const star=(cx,cy,r=32)=>Array.from({length:8},(_,i)=>{const a=i*Math.PI/4-Math.PI/2,rr=i%2?r*.3:r;return `${cx+rr*Math.cos(a)},${cy+rr*Math.sin(a)}`;}).join(' ');

@@ -78,7 +78,7 @@ await cp(path.join(root,'src/world.css'),path.join(out,'world.css'));
 await cp(path.join(root,'src/app.js'),path.join(out,'app.js'));
 await cp(path.join(root,'src/world.js'),path.join(out,'world.js'));
 await cp(path.join(root,'src/branding.js'),path.join(out,'branding.js'));
-for(const name of ['natal.js','natal-engine.js','natal-tarot.js','natal-visuals.js','natal.css'])await cp(path.join(root,'src',name),path.join(out,name));
+for(const name of ['natal.js','natal-engine.js','natal-tarot.js','natal-visuals.js','natal-reading.js','natal.css'])await cp(path.join(root,'src',name),path.join(out,name));
 await mkdir(path.join(out,'vendor'),{recursive:true});
 await cp(path.join(root,'node_modules/astronomy-engine/astronomy.browser.min.js'),path.join(out,'vendor/astronomy.js'));
 await writeFile(path.join(out,'asset-map.js'),`globalThis.LavandaAssets=${JSON.stringify(delivery.publicMap)};\n`);

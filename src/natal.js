@@ -1,10 +1,12 @@
 import {SIGNS,calculateChart,resolveBirthTime} from './natal-engine.js';
 import {TAROT_CARDS,recommendArcana} from './natal-tarot.js';
 import {chartSVG,cardSVG,formatDegree,escapeHTML as e} from './natal-visuals.js';
+import {describeSelection} from './natal-reading.js';
 
 const $=selector=>document.querySelector(selector);
 const form=$('#natal-form');
 let selectedPlace=null,currentChart=null,enginePromise=null,searchController=null,searchVersion=0,calculationVersion=0;
+let selectedChartItem=null,lastSelectionTrigger=null,wheelZoom=100,wheelScrollBeforeDialog=0;
 const smooth=()=>matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth';
 const localToday=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
 const signName=p=>Number.isInteger(p?.signIndex)?SIGNS[p.signIndex].name:(p?.possibleSignIndices||[]).map(i=>SIGNS[i]?.name).filter(Boolean).join(' / ')||'Non disponibile';
@@ -12,7 +14,7 @@ const uncertain=p=>p?.signCertain===false||(p?.possibleSignIndices?.length>1);
 const aspectsLabels={conjunction:'Congiunzione',opposition:'Opposizione',trine:'Trigono',square:'Quadratura',sextile:'Sestile'};
 
 function error(message){const box=$('#natal-error');box.textContent=message;box.hidden=!message;}
-function invalidate(){calculationVersion++;currentChart=null;$('#natal-result').hidden=true;$('#natal-empty').hidden=false;$('#natal-recommendations').hidden=true;error('');}
+function invalidate(){calculationVersion++;if($('#natal-wheel-dialog').open)$('#natal-wheel-dialog').close();currentChart=null;selectedChartItem=null;$('#natal-wheel-reading').hidden=true;$('#natal-wheel-reading').replaceChildren();$('#natal-result').hidden=true;$('#natal-empty').hidden=false;$('#natal-recommendations').hidden=true;error('');}
 function clearTimeChoice(){$('#time-choice').hidden=true;$('#time-choice-options').replaceChildren();}
 function setPlace(place){
  selectedPlace=place;const parts=Object.fromEntries(new Intl.DateTimeFormat('en',{timeZone:place.timezone,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).map(p=>[p.type,p.value]));$('#birth-date').max=`${parts.year}-${parts.month}-${parts.day}`;invalidate();clearTimeChoice();$('#place-results').hidden=true;
@@ -49,14 +51,48 @@ async function loadAstronomy(){
 }
 function bigThree(chart){
  const sun=chart.planets.find(p=>p.key==='sun'),moon=chart.planets.find(p=>p.key==='moon');
- const cell=(name,p,help)=>`<div><span>${name}</span><strong>${e(signName(p))}</strong><small>${p?(uncertain(p)?'Il segno cambia durante il giorno':formatDegree(p.degree)):help}</small></div>`;
- return cell('☉ Sole',sun)+cell('☽ Luna',moon)+cell('↗ Ascendente',chart.ascendant,chart.unknownTime?'Serve l’ora di nascita':'Non definito per queste coordinate');
+ const cell=(name,p,type,key,help)=>`<div>${p?`<button type="button" data-chart-type="${type}" data-chart-key="${key}" aria-controls="natal-wheel-reading" aria-pressed="false">`:'<div>'}<span>${name}</span><strong>${e(signName(p))}</strong><small>${p?(uncertain(p)?'Il segno cambia durante il giorno':formatDegree(p.degree)):help}</small>${p?'<b aria-hidden="true">↗</b></button>':'</div>'}</div>`;
+ return cell('☉ Sole',sun,'planet','sun')+cell('☽ Luna',moon,'planet','moon')+cell('↗ Ascendente',chart.ascendant,'angle','ascendant',chart.unknownTime?'Serve l’ora di nascita':'Non definito per queste coordinate');
+}
+
+function setWheelZoom(value){
+ wheelZoom=Math.max(100,Math.min(220,value));$('#natal-chart').style.removeProperty('width');$('#natal-chart').style.setProperty('--natal-wheel-scale',String(wheelZoom/100));
+ $('#natal-zoom-value').textContent=`${wheelZoom}%`;$('#natal-zoom-out').disabled=wheelZoom===100;$('#natal-zoom-in').disabled=wheelZoom===220;
+ $('#natal-wheel-viewport').classList.toggle('is-zoomed',wheelZoom>100);
+ if(wheelZoom===100){$('#natal-wheel-viewport').scrollTop=0;$('#natal-wheel-viewport').scrollLeft=0;}
+}
+function selectionButton(item,label=item.label){return `<button type="button" data-chart-type="${e(item.type)}" data-chart-key="${e(item.key)}" aria-controls="natal-wheel-reading" aria-pressed="false">${e(label)}</button>`;}
+function renderWheelChoices(chart){
+ const points=chart.planets.map(p=>({type:'planet',key:p.key,label:`${p.glyph} ${p.name}`}));
+ if(chart.ascendant)points.push({type:'angle',key:'ascendant',label:'↗ Ascendente'});
+ if(chart.midheaven)points.push({type:'angle',key:'midheaven',label:'MC Medio Cielo'});
+ $('#natal-wheel-choices').innerHTML=`<p>Pianeti e punti</p><div class="natal-wheel-choice-list">${points.map(p=>selectionButton(p)).join('')}</div><p>I dodici segni</p><div class="natal-wheel-choice-list">${SIGNS.map(s=>selectionButton({type:'sign',key:s.key,label:`${s.glyph}\uFE0E ${s.name}`})).join('')}</div>`;
+}
+function updateSelectionState(){
+ for(const node of document.querySelectorAll('.natal-page [data-chart-type]')){
+  const selected=selectedChartItem&&node.dataset.chartType===selectedChartItem.type&&node.dataset.chartKey===String(selectedChartItem.key);
+  node.setAttribute('aria-pressed',String(Boolean(selected)));node.classList.toggle('is-selected',Boolean(selected));
+ }
+}
+function showSelection(selection,trigger){
+ if(!currentChart)return;const reading=describeSelection(currentChart,selection);if(!reading)return;
+ selectedChartItem={type:reading.type,key:reading.key};lastSelectionTrigger=trigger;
+ $('#natal-chart').innerHTML=chartSVG(currentChart,{interactive:true,selected:selectedChartItem});updateSelectionState();
+ const panel=$('#natal-wheel-reading');panel.hidden=false;
+ const cards=(reading.cards||[]).flatMap(item=>{const card=TAROT_CARDS.find(c=>c.number===item.card);return card?[{card,reason:item.reason}]:[];});
+ panel.innerHTML=`<header class="natal-reading-header"><div><p class="section-caption">${e(reading.kicker)}</p><h3 id="natal-selection-title">${e(reading.title)}</h3></div><button type="button" class="natal-reading-close" data-close-reading aria-label="Chiudi l’approfondimento">×</button></header>${reading.caveat?`<p class="natal-reading-caveat">${e(reading.caveat)}</p>`:''}<p class="natal-reading-intro">${e(reading.intro)}</p>${(reading.sections||[]).map(section=>`<section><h4>${e(section.title)}</h4><p>${e(section.text)}</p></section>`).join('')}${reading.questions?.length?`<section class="natal-reading-questions"><h4>Domande per la tua esplorazione</h4><ul>${reading.questions.map(question=>`<li>${e(question)}</li>`).join('')}</ul></section>`:''}${cards.length?`<section><h4>Gli Arcani collegati</h4><p class="natal-reading-card-hint">Apri una carta per seguirne il significato e il gesto da esplorare.</p><div class="natal-reading-cards">${cards.map(({card,reason})=>`<details class="natal-reading-card"><summary><span class="natal-reading-card-thumb">${cardSVG(card)}</span><span><strong>${e(card.roman)} · ${e(card.name)}</strong><small>${e(reason)}</small></span><b aria-hidden="true">＋</b></summary><div><p>${e(card.description)}</p><blockquote>${e(card.question)}</blockquote><p>${e(card.practice)}</p></div></details>`).join('')}</div></section>`:''}${reading.related?.length?`<nav class="natal-reading-related" aria-label="Continua nella carta"><p>Segui un’altra corrispondenza</p><div>${reading.related.map(item=>selectionButton(item)).join('')}</div></nav>`:''}<button type="button" class="natal-small-button natal-reading-back" data-close-reading>Torna alla ruota ↑</button><p class="natal-reading-footnote">Una lettura simbolica di Lavanda, composta a partire dalla tua carta. Le associazioni tradizionali e le scelte editoriali sono spiegate nel metodo.</p>`;
+ updateSelectionState();const closeReading=()=>{
+  const item=selectedChartItem;selectedChartItem=null;panel.hidden=true;$('#natal-chart').innerHTML=chartSVG(currentChart,{interactive:true});updateSelectionState();
+  const fallback=document.querySelector(`#natal-chart [data-chart-type="${item.type}"][data-chart-key="${CSS.escape(String(item.key))}"]`);
+  (lastSelectionTrigger?.isConnected?lastSelectionTrigger:fallback)?.focus();
+ };for(const button of panel.querySelectorAll('[data-close-reading]'))button.addEventListener('click',closeReading);
+ panel.scrollIntoView({behavior:smooth(),block:'start'});panel.focus({preventScroll:true});
 }
 function referenceTime(chart){return new Intl.DateTimeFormat('it',{timeZone:chart.meta.timezone,hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(chart.meta.utc));}
 function renderPlacements(chart){
  const known=!chart.unknownTime;
- const list=[...chart.planets,...(chart.ascendant?[{...chart.ascendant,name:'Ascendente',glyph:'ASC'}]:[]),...(chart.midheaven?[{...chart.midheaven,name:'Medio Cielo',glyph:'MC'}]:[])];
- $('#natal-placements').innerHTML=`<table><caption>${known?'R = moto retrogrado apparente. Case a segno intero.':`Riferimento alle ${referenceTime(chart)} locali. I gradi sono indicativi: senza l’ora non rappresentano il momento esatto della nascita. Case non calcolate.`}</caption><thead><tr><th scope="col">Corpo / punto</th><th scope="col">Segno</th><th scope="col">Gradi</th>${known?'<th scope="col">Casa</th>':''}</tr></thead><tbody>${list.map(p=>`<tr><td>${e(p.glyph)} ${e(p.name)} ${p.retrograde===true?'R':''}</td><td>${e(signName(p))}${uncertain(p)?' *':''}</td><td>${Number.isFinite(p.degree)?formatDegree(p.degree):'Variabili *'}</td>${known?`<td>${chart.ascendant&&Number.isFinite(p.longitude)?((Math.floor(p.longitude/30)-chart.ascendant.signIndex+12)%12)+1:'—'}</td>`:''}</tr>`).join('')}</tbody></table>${chart.planets.some(uncertain)?'<p>* Il pianeta attraversa un confine fra segni durante questa giornata. L’ora è necessaria per risolvere il dubbio.</p>':''}`;
+ const list=[...chart.planets,...(chart.ascendant?[{...chart.ascendant,key:'ascendant',type:'angle',name:'Ascendente',glyph:'ASC'}]:[]),...(chart.midheaven?[{...chart.midheaven,key:'midheaven',type:'angle',name:'Medio Cielo',glyph:'MC'}]:[])];
+ $('#natal-placements').innerHTML=`<div class="natal-table-scroll" tabindex="0" role="region" aria-label="Tabella delle posizioni, scorri se necessario"><table><caption>${known?'R = moto retrogrado apparente. Case a segno intero.':`Riferimento alle ${referenceTime(chart)} locali. I gradi sono indicativi: senza l’ora non rappresentano il momento esatto della nascita. Case non calcolate.`}</caption><thead><tr><th scope="col">Corpo / punto</th><th scope="col">Segno</th><th scope="col">Gradi</th>${known?'<th scope="col">Casa</th>':''}</tr></thead><tbody>${list.map(p=>`<tr><td>${selectionButton({type:p.type||'planet',key:p.key,label:`${p.glyph} ${p.name} ${p.retrograde===true?'R':''}`})}</td><td>${e(signName(p))}${uncertain(p)?' *':''}</td><td>${Number.isFinite(p.degree)?formatDegree(p.degree):'Variabili *'}</td>${known?`<td>${chart.ascendant&&Number.isFinite(p.longitude)?((Math.floor(p.longitude/30)-chart.ascendant.signIndex+12)%12)+1:'—'}</td>`:''}</tr>`).join('')}</tbody></table></div>${chart.planets.some(uncertain)?'<p>* Il pianeta attraversa un confine fra segni durante questa giornata. L’ora è necessaria per risolvere il dubbio.</p>':''}`;
  const byKey=new Map(chart.planets.map(p=>[p.key,p]));
  $('#natal-aspects').innerHTML=chart.unknownTime?'<p>Gli aspetti richiedono l’ora di nascita. Non vengono assegnati a una mappa del giorno.</p>':`<p>Distanze angolari fra i pianeti. Orbi massimi: 6° per congiunzione e opposizione, 4° per trigono e quadratura, 3° per sestile. Nella ruota le linee viola indicano trigoni e sestili, le linee rosa quadrature e opposizioni.</p><ul class="natal-aspect-list">${(chart.aspects||[]).map(a=>`<li><span>${e(byKey.get(a.from)?.name)} · ${e(byKey.get(a.to)?.name)}</span><span>${e(aspectsLabels[a.type]||a.type)} / ${Number(a.orb).toFixed(1)}°</span></li>`).join('')}</ul>${chart.aspects?.length?'':'<p>Nessun aspetto entro gli orbi selezionati.</p>'}`;
 }
@@ -74,11 +110,11 @@ function renderRecommendations(chart){
  $('#natal-recommendations').hidden=false;
 }
 function renderResult(chart,input,place){
- currentChart=chart;$('#natal-empty').hidden=true;$('#natal-result').hidden=false;
+ currentChart=chart;selectedChartItem=null;$('#natal-wheel-reading').hidden=true;$('#natal-wheel-reading').replaceChildren();$('#natal-empty').hidden=true;$('#natal-result').hidden=false;
  $('#natal-result-title').textContent=chart.unknownTime?'La mappa del tuo giorno.':'Il cielo della tua nascita.';
  const date=new Intl.DateTimeFormat('it',{dateStyle:'long',timeZone:'UTC'}).format(new Date(`${input.date}T12:00:00Z`));
  $('#natal-birth-summary').textContent=`${date} · ${chart.unknownTime?'ora sconosciuta':`${input.time} (ora locale, ${chart.meta.offsetLabel})`} · ${place.label} · ${input.timezone}`;
- $('#natal-big-three').innerHTML=bigThree(chart);$('#natal-chart').innerHTML=chartSVG(chart);
+ $('#natal-big-three').innerHTML=bigThree(chart);$('#natal-chart').innerHTML=chartSVG(chart,{interactive:true});setWheelZoom(100);renderWheelChoices(chart);
  const warnings=Array.isArray(chart.warnings)?chart.warnings.map(w=>typeof w==='string'?w:w.message||'').filter(Boolean):[];
  $('#natal-chart-note').textContent=[chart.unknownTime?`Ruota di riferimento alle ${referenceTime(chart)} locali. Senza un’ora attendibile, Ascendente e case restano aperti.`:'Zodiaco tropicale · Case a segno intero · ASC: Ascendente · MC: Medio Cielo. Le tacche indicano le posizioni esatte; i simboli sono distanziati per leggibilità.',...warnings].join(' ');
  renderPlacements(chart);renderRecommendations(chart);
@@ -89,7 +125,30 @@ if(form){
  const zones=typeof Intl.supportedValuesOf==='function'?Intl.supportedValuesOf('timeZone'):['Europe/Rome','Europe/London','America/New_York','Asia/Tokyo'];
  $('#natal-timezones').innerHTML=zones.map(zone=>`<option value="${e(zone)}"></option>`).join('');
  $('#natal-deck-grid').innerHTML=TAROT_CARDS.map(card=>`<button type="button" class="natal-deck-card" data-arcana="${card.number}" aria-label="Esplora ${e(card.name)}">${cardSVG(card)}<span>${e(card.roman)} · ${e(card.name)}</span></button>`).join('');
- document.querySelector('.natal-page').addEventListener('click',event=>{const button=event.target.closest('[data-arcana]');if(button)showCard(button.dataset.arcana,button);});
+ document.querySelector('.natal-page').addEventListener('click',event=>{
+  const target=event.target.closest('[data-chart-type]');if(target){showSelection({type:target.dataset.chartType,key:target.dataset.chartKey},target);return;}
+  const button=event.target.closest('[data-arcana]');if(button)showCard(button.dataset.arcana,button);
+ });
+ $('#natal-chart').addEventListener('keydown',event=>{
+  const target=event.target.closest('[data-chart-type]');if(!target)return;
+  if(event.key==='Enter'||event.key===' '){event.preventDefault();showSelection({type:target.dataset.chartType,key:target.dataset.chartKey},target);return;}
+  const controls=[...$('#natal-chart').querySelectorAll(`[data-chart-type="${target.dataset.chartType}"]`)];
+  const index=controls.indexOf(target);let next;
+  if(event.key==='ArrowRight'||event.key==='ArrowDown')next=(index+1)%controls.length;
+  if(event.key==='ArrowLeft'||event.key==='ArrowUp')next=(index-1+controls.length)%controls.length;
+  if(event.key==='Home')next=0;if(event.key==='End')next=controls.length-1;
+  if(next!==undefined){event.preventDefault();controls[next].focus();}
+ });
+ $('#natal-zoom-in').addEventListener('click',()=>setWheelZoom(wheelZoom+40));
+ $('#natal-zoom-out').addEventListener('click',()=>setWheelZoom(wheelZoom-40));
+ $('#natal-zoom-fit').addEventListener('click',()=>setWheelZoom(100));
+ $('#natal-open-wheel').addEventListener('click',()=>{
+  wheelScrollBeforeDialog=window.scrollY;$('#natal-dialog-mount').append($('#natal-explorer'));$('#natal-wheel-dialog').showModal();$('#natal-close-wheel').focus();
+ });
+ $('#natal-close-wheel').addEventListener('click',()=>$('#natal-wheel-dialog').close());
+ $('#natal-wheel-dialog').addEventListener('close',()=>{
+  $('#natal-explorer-slot').append($('#natal-explorer'));if(currentChart){window.scrollTo({top:wheelScrollBeforeDialog,behavior:'instant'});$('#natal-open-wheel').focus({preventScroll:true});}
+ });
  $('#search-place').addEventListener('click',searchPlaces);
  $('#birth-place').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();searchPlaces();}});
  $('#birth-place').addEventListener('input',()=>{selectedPlace=null;searchVersion++;searchController?.abort();$('#search-place').disabled=false;$('#selected-place').hidden=true;$('#place-results').hidden=true;$('#place-status').textContent='';invalidate();clearTimeChoice();});
