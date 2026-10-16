@@ -12,7 +12,7 @@ const smooth=()=>matchMedia('(prefers-reduced-motion: reduce)').matches?'instant
 const localToday=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
 const signName=p=>Number.isInteger(p?.signIndex)?SIGNS[p.signIndex].name:(p?.possibleSignIndices||[]).map(i=>SIGNS[i]?.name).filter(Boolean).join(' / ')||'Non disponibile';
 const uncertain=p=>p?.signCertain===false||(p?.possibleSignIndices?.length>1);
-const natalSolar=form?createNatalSolar({root:$('#natal-solar-panel'),onSelect:showSelection,onEarth:showEarthInfo}):null;
+const natalSolar=form?createNatalSolar({root:$('#natal-solar-panel'),onSelect:showSelection,onEarth:showEarthInfo,onLunarOpen:showLunarInfo}):null;
 const aspectsLabels={conjunction:'Congiunzione',opposition:'Opposizione',trine:'Trigono',square:'Quadratura',sextile:'Sestile'};
 
 function error(message){const box=$('#natal-error');box.textContent=message;box.hidden=!message;}
@@ -77,7 +77,7 @@ function updateSelectionState(){
  }
 }
 function setDisplayMode(mode){
- displayMode=mode==='wheel'?'wheel':'solar';$('#natal-wheel-panel').hidden=displayMode!=='wheel';$('#natal-solar-panel').hidden=displayMode!=='solar';
+ displayMode=mode==='wheel'?'wheel':'solar';if(displayMode==='wheel')natalSolar?.closeLunar();$('#natal-wheel-panel').hidden=displayMode!=='wheel';$('#natal-solar-panel').hidden=displayMode!=='solar';
  for(const button of document.querySelectorAll('button[data-natal-mode]'))button.setAttribute('aria-pressed',String(button.dataset.natalMode===displayMode));
  if(displayMode==='solar'){natalSolar?.resize();natalSolar?.revealSelection();}
 }
@@ -89,7 +89,13 @@ function showEarthInfo(trigger){
  if(!currentChart)return;
  renderReading({type:'reference',key:'earth',kicker:'Il punto di osservazione',title:'La Terra, nella tua mappa.',intro:'La carta natale osserva il cielo dalla Terra. Nel modello 3D la Terra compare come corpo fisico in orbita intorno al Sole; nella ruota non le attribuiamo un segno o un Arcano.',sections:[{title:'La Luna intorno alla Terra',text:'Scegli “Terra e Luna” per vedere la traiettoria lunare da vicino. Il modello conserva l’istante della carta e le distanze proporzionali, con raggi amplificati per renderli visibili.'}],related:[{type:'planet',key:'moon',label:'☽ La Luna: lettura e Arcani'}]},trigger);
 }
+function showLunarInfo(){
+ if(!currentChart)return;
+ selectedChartItem=null;$('#natal-wheel-reading').hidden=true;$('#natal-wheel-reading').replaceChildren();
+ natalSolar?.selectFromChart(null);$('#natal-chart').innerHTML=chartSVG(currentChart,{interactive:true});updateSelectionState();
+}
 function renderReading(reading,trigger){
+ natalSolar?.closeLunar();
  selectedChartItem={type:reading.type,key:reading.key};lastSelectionTrigger=trigger;
  $('#natal-chart').innerHTML=chartSVG(currentChart,{interactive:true,selected:selectedChartItem});updateSelectionState();
  const panel=$('#natal-wheel-reading');panel.hidden=false;

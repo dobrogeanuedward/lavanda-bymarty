@@ -1,16 +1,18 @@
 import {SOLAR_BODIES} from './solar-engine.js';
 import {createSolarScene} from './solar-scene.js';
+import {createLunarCalendarUI} from './lunar-calendar-ui.js';
 import {createNatalSolarModel,natalSelectionToSolarBody,solarBodyToNatalSelection} from './natal-solar-model.js';
 
 const number=value=>new Intl.NumberFormat('it-IT',{maximumFractionDigits:1}).format(value);
 const views={inner:'Pianeti interni',all:'Sistema completo','earth-moon':'Terra e Luna · Orbita relativa alla Terra'};
 
 /** A birth snapshot shares selection with the wheel, never an advancing clock. */
-export function createNatalSolar({root,onSelect,onEarth}){
+export function createNatalSolar({root,onSelect,onEarth,onLunarOpen=()=>{}}){
  const $=selector=>root.querySelector(selector);
  let scene=null,model=null,version=0,selection=null,view='inner',bodyKey=null;
  const stage=$('#natal-solar-stage');
  const buttons=$('#natal-solar-bodies');
+ const lunarUI=createLunarCalendarUI({root:$('#natal-lunar-calendar'),detail:document.querySelector('#natal-lunar-detail'),staticSnapshot:true,onOpenCard:()=>onLunarOpen(),onFocusCalendar:()=>{view='earth-moon';scene?.setView(view);scene?.resetView();sync();}});
  for(const body of SOLAR_BODIES){
   const button=document.createElement('button');button.type='button';button.dataset.natalSolarBody=body.key;button.textContent=body.name;
   button.setAttribute('aria-controls','natal-wheel-reading');button.setAttribute('aria-pressed','false');buttons.append(button);
@@ -20,6 +22,8 @@ export function createNatalSolar({root,onSelect,onEarth}){
   for(const button of root.querySelectorAll('button[data-natal-solar-view]'))button.setAttribute('aria-pressed',String(button.dataset.natalSolarView===view));
   for(const button of buttons.querySelectorAll('button'))button.setAttribute('aria-pressed',String(button.dataset.natalSolarBody===bodyKey));
   $('#natal-solar-reference').textContent=views[view]+' · Eclittica J2000';
+  $('#natal-lunar-calendar').hidden=view!=='earth-moon';
+  if(view!=='earth-moon')lunarUI.close({restoreFocus:false});
   const info=scene?.getScaleInfo();
   if(info){
    const range=info.visibleEnhancementRange;
@@ -32,12 +36,14 @@ export function createNatalSolar({root,onSelect,onEarth}){
   $('#natal-solar-error').textContent=error?.message||'La vista 3D non è disponibile. Puoi esplorare la ruota e scegliere i pianeti dall’elenco.';
  }
  function selectFromChart(next){
+  if(next)lunarUI.close({restoreFocus:false});
   selection=next;bodyKey=natalSelectionToSolarBody(next);
   if(bodyKey){scene?.selectBody(bodyKey,{focus:bodyKey==='moon'?'pair':!root.hidden});$('#natal-solar-selection-note').textContent='';}
   else{scene?.clearSelection();$('#natal-solar-selection-note').textContent=next?'Questa selezione appartiene alla ruota: segni, angoli e Plutone restano esplorabili nella carta e nelle letture.':'';}
   sync();
  }
  function chooseBody(key,trigger){
+  lunarUI.close({restoreFocus:false});
   bodyKey=key;scene?.selectBody(key,{focus:key==='moon'?'pair':true});sync();
   const next=solarBodyToNatalSelection(key);
   if(next){selection=next;$('#natal-solar-selection-note').textContent='';onSelect(next,trigger);}
@@ -56,7 +62,7 @@ export function createNatalSolar({root,onSelect,onEarth}){
  $('#natal-solar-reset').addEventListener('click',()=>scene?.resetView());
  $('#natal-solar-size').addEventListener('change',()=>{scene?.setSizeMode($('#natal-solar-size').value);sync();});
  function clear(){
-  version++;scene?.dispose();scene=null;model=null;selection=null;bodyKey=null;view='inner';stage.replaceChildren();
+  version++;lunarUI.clear();lunarUI.setScene(null);scene?.dispose();scene=null;model=null;selection=null;bodyKey=null;view='inner';stage.replaceChildren();
   $('#natal-solar-loading').hidden=false;$('#natal-solar-error').hidden=true;$('#natal-solar-status').textContent='';
   $('#natal-solar-selection-note').textContent='';$('#natal-solar-time').textContent='';$('#natal-solar-time').removeAttribute('datetime');
   $('#natal-solar-notice').textContent='';$('#natal-solar-size').value='visible';sync();
@@ -71,9 +77,10 @@ export function createNatalSolar({root,onSelect,onEarth}){
    $('#natal-solar-time').textContent=model.meta.dateLabel;$('#natal-solar-time').dateTime=model.meta.utc;
    $('#natal-solar-badge').textContent=model.meta.unknownTime?'Istante rappresentativo · fermo':'Istante di nascita · fermo';
    $('#natal-solar-notice').textContent=model.meta.notice;$('#natal-solar-frame-note').textContent=model.meta.frameNotice;
-   const next=await createSolarScene({container:stage,engine,onSelect:key=>chooseBody(key,stage.querySelector(`[data-body="${key}"]`)),onError:error=>{if(token===version)fail(error);}});
+   lunarUI.update(new Date(model.meta.utc),engine,{representative:model.meta.unknownTime});
+   const next=await createSolarScene({container:stage,engine,onSelect:key=>chooseBody(key,stage.querySelector(`[data-body="${key}"]`)),onLunarSelect:key=>lunarUI.select(key,{trigger:stage.querySelector(`[data-lunar-phase="${CSS.escape(key)}"]`)}),onError:error=>{if(token===version)fail(error);}});
    if(token!==version){next.dispose();return;}
-   scene=next;scene.update(model.state);scene.setView(view);scene.setSizeMode($('#natal-solar-size').value);
+   scene=next;scene.update(model.state);lunarUI.setScene(scene);scene.setView(view);scene.setSizeMode($('#natal-solar-size').value);
    if(selection)selectFromChart(selection);else if(bodyKey)scene.selectBody(bodyKey,{focus:true});else scene.clearSelection();sync();
    const success=await scene.setEpoch(new Date(model.meta.utc));if(token!==version)return;
    $('#natal-solar-loading').hidden=true;if(success)$('#natal-solar-status').textContent='Orbite calcolate per questo istante. Seleziona un pianeta per aprire la sua lettura.';
@@ -81,5 +88,5 @@ export function createNatalSolar({root,onSelect,onEarth}){
  }
  window.addEventListener('pagehide',event=>{if(!event.persisted)clear();});
  window.addEventListener('pageshow',event=>{if(event.persisted)scene?.resize();});
- return {setChart,clear,selectFromChart,revealSelection(){if(bodyKey){scene?.selectBody(bodyKey,{focus:bodyKey==='moon'?'pair':true});sync();}},resize:()=>scene?.resize(),bodyButton:key=>buttons.querySelector(`[data-natal-solar-body="${key}"]`)};
+ return {setChart,clear,selectFromChart,closeLunar:()=>lunarUI.close({restoreFocus:false}),revealSelection(){if(bodyKey){scene?.selectBody(bodyKey,{focus:bodyKey==='moon'?'pair':true});sync();}},resize:()=>scene?.resize(),bodyButton:key=>buttons.querySelector(`[data-natal-solar-body="${key}"]`)};
 }

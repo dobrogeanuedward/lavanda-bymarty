@@ -6,6 +6,9 @@ const VIEWS = Object.freeze({calendar:1.25,inner:1.75,all:32,'earth-moon':0.0042
 const INNER = new Set(['sun','mercury','venus','earth','mars']);
 const CALENDAR_COLORS=Object.freeze({spring:'#9dcc93',summer:'#ecc879',autumn:'#df9d7e',winter:'#a6a7e7'});
 const CALENDAR_MONTHS=Object.freeze(['january','february','march','april','may','june','july','august','september','october','november','december']);
+const LUNAR_PHASES=Object.freeze(['new','waxing-crescent','first-quarter','waxing-gibbous','full','waning-gibbous','last-quarter','waning-crescent']);
+const LUNAR_ALCHEMY=Object.freeze(['nigredo','albedo','citrinitas','rubedo']);
+const LUNAR_COLORS=Object.freeze({nigredo:{fill:'#393345',outline:'#bba3e0'},albedo:{fill:'#f3eee0',outline:'#f3eee0'},citrinitas:{fill:'#e8c64f',outline:'#ecd567'},rubedo:{fill:'#cf5796',outline:'#e584b9'}});
 const VISIBLE_RADII_AU = Object.freeze({
   inner:{sun:.07,mercury:.019,venus:.026,earth:.026,mars:.022,jupiter:.06,saturn:.055,uranus:.04,neptune:.04,moon:.012},
   all:{sun:.12,mercury:.07,venus:.08,earth:.08,mars:.07,jupiter:.23,saturn:.21,uranus:.17,neptune:.17,moon:.05},
@@ -69,6 +72,37 @@ export function normalizeSolarCalendar(data){
     })};
 }
 
+export function normalizeLunarCalendar(data){
+  if(data===null)return null;
+  const invalid=()=>{throw new SolarSceneError('INVALID_LUNAR_CALENDAR','Il calendario lunare richiede otto intervalli di fase e posizioni geocentriche J2000.');};
+  if(!data||data.frame!=='J2000 ecliptic'||data.origin!=='earth'||!Array.isArray(data.sectors)||data.sectors.length!==8)invalid();
+  const position=value=>{
+    if(!Array.isArray(value)||value.length!==3||!value.every(Number.isFinite)||Math.hypot(...value)<.0015||Math.hypot(...value)>.004)invalid();
+    return [...value];
+  };
+  const sectors=data.sectors.map((sector,index)=>{
+    if(!sector||sector.index!==index||sector.key!==LUNAR_PHASES[index]||sector.alchemyKey!==LUNAR_ALCHEMY[Math.floor(index/2)]||sector.angle!==index*45)invalid();
+    if(typeof sector.phaseLabel!=='string'||!sector.phaseLabel.trim()||sector.phaseLabel.length>100||typeof sector.alchemyLabel!=='string'||!sector.alchemyLabel.trim()||sector.alchemyLabel.length>80)invalid();
+    if(!Number.isFinite(Date.parse(sector.startDate))||!Number.isFinite(Date.parse(sector.endDate))||Date.parse(sector.endDate)<=Date.parse(sector.startDate))invalid();
+    if(!Array.isArray(sector.points)||sector.points.length<2||sector.points.length>512)invalid();
+    const points=sector.points.map(position),startPosition=position(sector.startPosition??points[0]),endPosition=position(sector.endPosition??points.at(-1));
+    const principal=index%2===0;
+    return {key:sector.key,index,angle:sector.angle,phaseLabel:sector.phaseLabel,alchemyKey:sector.alchemyKey,alchemyLabel:sector.alchemyLabel,
+      label:principal?`${sector.alchemyLabel} · ${sector.phaseLabel}`:sector.phaseLabel,principal,
+      startDate:sector.startDate,endDate:sector.endDate,eventDate:sector.eventDate??sector.startDate,
+      points,startPosition,endPosition,anchorPosition:startPosition,labelPosition:startPosition.map(value=>value*(principal?1.42:1.30))};
+  });
+  if(!Number.isFinite(Date.parse(data.startDate))||!Number.isFinite(Date.parse(data.endDate))||Date.parse(data.endDate)<=Date.parse(data.startDate))invalid();
+  for(let index=1;index<sectors.length;index++)if(Date.parse(sectors[index].startDate)!==Date.parse(sectors[index-1].endDate))invalid();
+  if(Date.parse(sectors[0].startDate)!==Date.parse(data.startDate)||Date.parse(sectors.at(-1).endDate)!==Date.parse(data.endDate))invalid();
+  if(!Array.isArray(data.mainEvents)||data.mainEvents.length!==4)invalid();
+  const mainEvents=data.mainEvents.map((event,index)=>{
+    if(!event||event.key!==LUNAR_PHASES[index*2])invalid();
+    return {key:event.key,position:position(event.position),date:event.date??event.eventDate};
+  });
+  return {frame:data.frame,origin:'earth',startDate:data.startDate,endDate:data.endDate,durationDays:data.durationDays,sectors,mainEvents};
+}
+
 /**
  * Same-origin vendor files, no CDN or inline import map. Build copies:
  * three/build/{three.module.js,three.core.js} and examples/jsm/controls/OrbitControls.js,
@@ -76,7 +110,7 @@ export function normalizeSolarCalendar(data){
  * No surface is a photograph or geographic map; colors are procedural diagrams.
  * Only IAU pole directions orient surfaces/rings. No invented daily spin is applied.
  */
-export async function createSolarScene({container,engine,onSelect=()=>{},onCalendarSelect=()=>{},onError=()=>{}}={}){
+export async function createSolarScene({container,engine,onSelect=()=>{},onCalendarSelect=()=>{},onLunarSelect=()=>{},onError=()=>{}}={}){
   const notifiedCodes=new Set();
   const report=error=>{const code=error.code||error.name;if(!notifiedCodes.has(code)){notifiedCodes.add(code);onError(error);}};
   if(!container?.ownerDocument||typeof container.appendChild!=='function'){
@@ -102,6 +136,8 @@ export async function createSolarScene({container,engine,onSelect=()=>{},onCalen
   let pendingEpoch=null;
   let calendarData=null,calendarSelection=null,calendarGroup=null;
   const calendarObjects=new Map();
+  let lunarData=null,lunarSelection=null,lunarGroup=null,lunarFocusAfterDraw=null;
+  const lunarObjects=new Map();
   const scene=new THREE.Scene();scene.background=new THREE.Color('#0b0a15');
   const camera=new THREE.PerspectiveCamera(42,1,.00001,2000);
   renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -132,6 +168,10 @@ export async function createSolarScene({container,engine,onSelect=()=>{},onCalen
   Object.assign(calendarOverlay.style,{position:'absolute',inset:'0',pointerEvents:'none'});
   calendarOverlay.setAttribute('aria-label','Calendario stagionale lungo l’orbita terrestre');
   overlay.append(calendarOverlay);
+  const lunarOverlay=document.createElement('div');lunarOverlay.className='solar-lunar-label-layer';
+  Object.assign(lunarOverlay.style,{position:'absolute',inset:'0',pointerEvents:'none'});
+  lunarOverlay.setAttribute('aria-label','Calendario lunare: otto fasi e quattro corrispondenze alchemiche');
+  lunarOverlay.hidden=true;overlay.append(lunarOverlay);
   container.dataset.solarOrbitPending='false';
   const bodyObjects=new Map(),orbitObjects=new Map();
   const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
@@ -190,7 +230,13 @@ export async function createSolarScene({container,engine,onSelect=()=>{},onCalen
   const baryLabel=document.createElement('span');baryLabel.className='solar-reference-label solar-scene-reference';baryLabel.textContent='Baricentro';
   Object.assign(baryLabel.style,{position:'absolute',pointerEvents:'none'});baryLabel.hidden=true;overlay.append(baryLabel);
 
-  function canDraw(){return!disposed&&!failed&&onscreen&&document.visibilityState!=='hidden';}
+  function canDraw(){
+    // Chromium can retain an offscreen IntersectionObserver entry when the
+    // existing stage moves into a native dialog's top layer after a reload.
+    // Hidden natal panels still have zero dimensions and remain suspended.
+    const visible=onscreen||(container.clientWidth>0&&container.clientHeight>0&&container.closest('dialog[open]'));
+    return!disposed&&!failed&&visible&&document.visibilityState!=='hidden';
+  }
   function invalidate(){if(canDraw()&&!raf)raf=window.requestAnimationFrame(draw);}
   function fatal(cause){
     if(disposed||failed)return;
@@ -284,6 +330,120 @@ export async function createSolarScene({container,engine,onSelect=()=>{},onCalen
     invalidate();return true;
   }
 
+  function removeLunarCalendar(){
+    if(lunarGroup){
+      scene.remove(lunarGroup);lunarGroup.traverse(object=>{object.geometry?.dispose();object.material?.dispose();});lunarGroup=null;
+    }
+    lunarOverlay.replaceChildren();lunarObjects.clear();
+  }
+
+  function chooseLunar(key){if(setLunarCalendarSelection(key))onLunarSelect(key);}
+
+  function makeLunarLabel(item){
+    const label=document.createElement('button');label.type='button';
+    label.className=`solar-lunar-label${item.principal?' solar-lunar-main-label':''}`;
+    label.dataset.lunarPhase=item.key;label.dataset.alchemy=item.alchemyKey;
+    label.textContent=item.label;label.setAttribute('aria-pressed','false');
+    label.setAttribute('aria-label',`${item.phaseLabel}, ${item.alchemyLabel}. Esplora il calendario lunare.`);
+    Object.assign(label.style,{position:'absolute',pointerEvents:'auto',whiteSpace:'normal',touchAction:'none'});
+    const leader=document.createElement('span');leader.className='solar-lunar-leader';leader.setAttribute('aria-hidden','true');leader.hidden=true;
+    Object.assign(leader.style,{position:'absolute',height:'1px',background:LUNAR_COLORS[item.alchemyKey].outline,opacity:'.48',transformOrigin:'0 0',pointerEvents:'none'});
+    const record={...item,label,leader,offset:{x:0,y:0},drag:null,suppressClick:false};
+    label.addEventListener('click',event=>{if(record.suppressClick&&event.detail!==0){record.suppressClick=false;return;}record.suppressClick=false;chooseLunar(item.key);});
+    label.addEventListener('pointerdown',event=>{
+      if(event.button!==0)return;
+      record.drag={id:event.pointerId,x:event.clientX,y:event.clientY,start:{...record.offset},moved:false};label.setPointerCapture(event.pointerId);
+    });
+    label.addEventListener('pointermove',event=>{
+      const drag=record.drag;if(!drag||drag.id!==event.pointerId)return;
+      const dx=event.clientX-drag.x,dy=event.clientY-drag.y;
+      if(Math.hypot(dx,dy)>6)drag.moved=true;
+      if(drag.moved){record.offset={x:drag.start.x+dx,y:drag.start.y+dy};invalidate();}
+    });
+    const finish=event=>{if(record.drag?.id===event.pointerId){record.suppressClick=record.drag.moved;record.drag=null;}};
+    label.addEventListener('pointerup',finish);label.addEventListener('pointercancel',finish);
+    lunarOverlay.append(leader,label);lunarObjects.set(item.key,record);return record;
+  }
+
+  function setLunarCalendar(data){
+    if(disposed||failed)return false;
+    const normalized=normalizeLunarCalendar(data);
+    const focusedPhase=[...lunarObjects.values()].find(object=>object.label===document.activeElement)?.key??lunarFocusAfterDraw;
+    removeLunarCalendar();lunarData=normalized;
+    lunarFocusAfterDraw=focusedPhase;
+    if(!normalized){setLunarCalendarSelection(null);applyVisibility();invalidate();return true;}
+    lunarGroup=new THREE.Group();lunarGroup.name='lunar-calendar';
+    lunarGroup.userData={annotation:true,origin:'earth',frame:normalized.frame,startDate:normalized.startDate,endDate:normalized.endDate,
+      description:'Actual geocentric lunar ephemeris over a lunation; decorative radial band, not a physical orbit or astronomical alchemical process.'};
+    for(const sector of normalized.sectors){
+      const vertices=[],indices=[],colors=LUNAR_COLORS[sector.alchemyKey];
+      sector.points.forEach((point,index)=>{
+        vertices.push(...toScenePosition(point.map(value=>value*1.07)),...toScenePosition(point.map(value=>value*1.19)));
+        if(index<sector.points.length-1){const base=index*2;indices.push(base,base+1,base+2,base+1,base+3,base+2);}
+      });
+      const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geometry.setIndex(indices);geometry.computeVertexNormals();
+      const mesh=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial({color:colors.fill,side:THREE.DoubleSide,transparent:true,opacity:.24,depthWrite:false}));
+      mesh.userData.lunarKey=sector.key;lunarGroup.add(mesh);
+      const radial=new THREE.Line(new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(...toScenePosition(sector.startPosition.map(value=>value*(sector.principal?0:1.07)))),
+        new THREE.Vector3(...toScenePosition(sector.startPosition.map(value=>value*1.19)))]),new THREE.LineBasicMaterial({color:colors.outline,transparent:true,opacity:sector.principal?.55:.35,depthWrite:false}));
+      lunarGroup.add(radial);
+      // Preserve the true open geocentric path. A lunation exceeds one sidereal
+      // revolution, so physically overlapping portions must remain overlapping.
+      const path=new THREE.Line(new THREE.BufferGeometry().setFromPoints(sector.points.map(point=>new THREE.Vector3(...toScenePosition(point)))),new THREE.LineBasicMaterial({color:colors.outline,transparent:true,opacity:.26,depthWrite:false}));
+      const outer=new THREE.Line(new THREE.BufferGeometry().setFromPoints(sector.points.map(point=>new THREE.Vector3(...toScenePosition(point.map(value=>value*1.19))))),new THREE.LineBasicMaterial({color:colors.outline,transparent:true,opacity:.64,depthWrite:false}));
+      lunarGroup.add(path,outer);Object.assign(makeLunarLabel(sector),{mesh,radial,outer});
+    }
+    scene.add(lunarGroup);if(!lunarObjects.has(lunarSelection))lunarSelection=null;
+    setLunarCalendarSelection(lunarSelection);applyPositions();applyVisibility();invalidate();return true;
+  }
+
+  function setLunarCalendarSelection(key){
+    if(key!==null&&!lunarObjects.has(key))return false;
+    lunarSelection=key;
+    for(const [itemKey,object]of lunarObjects){
+      const active=key===itemKey;
+      object.label.setAttribute('aria-pressed',String(active));object.label.classList.toggle('is-selected',active);
+      object.mesh.material.opacity=active?.46:.24;object.outer.material.opacity=active?1:.64;
+      object.radial.material.opacity=active?1:object.principal?.55:.35;
+    }
+    if(key===null)delete container.dataset.solarLunarSelection;else container.dataset.solarLunarSelection=key;
+    invalidate();return true;
+  }
+
+  function placeLunarLabels(occupied,selectedOnly=false){
+    lunarOverlay.hidden=!lunarGroup?.visible;if(lunarOverlay.hidden)return;
+    const earth=bodyObjects.get('earth').group.position;
+    const candidates=[...lunarObjects.values()].filter(object=>(object.key===lunarSelection)===selectedOnly).sort((a,b)=>Number(b.principal)-Number(a.principal));
+    for(const object of candidates){
+      const {label,leader}=object;
+      const projected=new THREE.Vector3(...toScenePosition(object.labelPosition)).add(earth).project(camera);
+      label.hidden=!labelsEnabled||projected.z<=-1||projected.z>=1||Math.abs(projected.x)>1.12||Math.abs(projected.y)>1.12;
+      leader.hidden=true;if(label.hidden)continue;
+      const labelWidth=label.offsetWidth||140,labelHeight=label.offsetHeight||44;
+      const x=(projected.x+1)*width/2+object.offset.x,y=(1-projected.y)*height/2+object.offset.y;
+      const left=Math.max(4,Math.min(width-labelWidth-4,x-labelWidth/2));
+      // Compact inline/modal stages share the top with a two-line UTC badge
+      // and the bottom with view controls. Keep phase names out of that HUD.
+      const topLimit=Math.min(height-labelHeight-4,height<450?76:4);
+      const bottomLimit=Math.max(topLimit,height-labelHeight-(height<450?60:4));
+      let top=Math.max(topLimit,Math.min(bottomLimit,y-labelHeight/2)),found=false;
+      for(let attempt=0;attempt<11;attempt++){
+        const next=Math.max(topLimit,Math.min(bottomLimit,top+Math.ceil(attempt/2)*(labelHeight+4)*(attempt%2?-1:1)));
+        if(!occupied.some(rect=>left<rect.right+3&&left+labelWidth>rect.left-3&&next<rect.bottom+3&&next+labelHeight>rect.top-3)){top=next;found=true;break;}
+      }
+      if(!found){label.hidden=true;continue;}
+      occupied.push({left,right:left+labelWidth,top,bottom:top+labelHeight});label.style.left=`${left}px`;label.style.top=`${top}px`;
+      const anchor=new THREE.Vector3(...toScenePosition(object.anchorPosition)).add(earth).project(camera);
+      const anchorX=(anchor.x+1)*width/2,anchorY=(1-anchor.y)*height/2;
+      const targetX=Math.max(left,Math.min(left+labelWidth,anchorX)),targetY=Math.max(top,Math.min(top+labelHeight,anchorY));
+      const dx=targetX-anchorX,dy=targetY-anchorY,distance=Math.hypot(dx,dy);
+      if(distance>16&&anchor.z>-1&&anchor.z<1){
+        leader.hidden=false;leader.style.left=`${anchorX}px`;leader.style.top=`${anchorY}px`;leader.style.width=`${distance}px`;leader.style.transform=`rotate(${Math.atan2(dy,dx)}rad)`;
+      }
+    }
+  }
+
   function placeCalendarLabels(occupied,selectedOnly=false){
     const visible=Boolean(calendarGroup?.visible);
     calendarOverlay.hidden=!visible;
@@ -310,6 +470,7 @@ export async function createSolarScene({container,engine,onSelect=()=>{},onCalen
   function placeLabels(){
     const occupied=[];
     placeCalendarLabels(occupied,true);
+    placeLunarLabels(occupied,true);
     const cameraRight=new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion);
     const candidates=[...bodyObjects.values()].sort((a,b)=>(b.body.key===selected?1:0)-(a.body.key===selected?1:0));
     for(const object of candidates){
@@ -345,6 +506,13 @@ export async function createSolarScene({container,engine,onSelect=()=>{},onCalen
     baryLabel.hidden=!labelsEnabled||view!=='sun-barycenter';
     if(!baryLabel.hidden){const projected=new THREE.Vector3().project(camera);baryLabel.style.left=`${(projected.x+1)*width/2+7}px`;baryLabel.style.top=`${(1-projected.y)*height/2+7}px`;}
     placeCalendarLabels(occupied);
+    placeLunarLabels(occupied);
+    if(lunarFocusAfterDraw){
+      const label=lunarObjects.get(lunarFocusAfterDraw)?.label;lunarFocusAfterDraw=null;
+      // Replacing a focused overlay label must not strand keyboard users on
+      // body, but a user who moved focus in the meantime keeps their choice.
+      if(document.activeElement===document.body)(label&&!label.hidden&&!lunarOverlay.hidden?label:canvas).focus({preventScroll:true});
+    }
   }
 
   function draw(timestamp){
@@ -370,7 +538,12 @@ export async function createSolarScene({container,engine,onSelect=()=>{},onCalen
     barycenter.visible=view==='sun-barycenter';
     if(calendarGroup)calendarGroup.visible=innerView||view==='all';
     calendarOverlay.hidden=!calendarGroup?.visible;
+    if(lunarGroup)lunarGroup.visible=view==='earth-moon';
+    lunarOverlay.hidden=!lunarGroup?.visible;
     container.dataset.solarCalendar=calendarData?'true':'false';
+    container.dataset.solarLunarCalendar=lunarData?'true':'false';
+    if(lunarData){container.dataset.solarLunarStart=lunarData.startDate;container.dataset.solarLunarEnd=lunarData.endDate;}
+    else{delete container.dataset.solarLunarStart;delete container.dataset.solarLunarEnd;}
     container.dataset.solarView=view;container.dataset.solarSizeMode=sizeMode;
   }
 
@@ -392,6 +565,7 @@ export async function createSolarScene({container,engine,onSelect=()=>{},onCalen
       moon.group.position.copy(earth.group.position).add(new THREE.Vector3(...toScenePosition(state.moonGeocentric)));
     }
     const moonOrbit=orbitObjects.get('moon');if(moonOrbit)moonOrbit.position.copy(bodyObjects.get('earth').group.position);
+    if(lunarGroup)lunarGroup.position.copy(bodyObjects.get('earth').group.position);
     sunlight.position.copy(view==='sun-barycenter'?bodyObjects.get('sun').group.position:new THREE.Vector3());
   }
 
@@ -510,7 +684,13 @@ export async function createSolarScene({container,engine,onSelect=()=>{},onCalen
       calendar:{enabled:Boolean(calendarData),visible:Boolean(calendarGroup?.visible),year:calendarData?.year??null,selection:calendarSelection,
         reference:'sun-centered; J2000 ecliptic; actual Earth ephemeris',seasons:'meteorological',
         geometry:'diagrammatic radial band from 88% to 112% of the Earth ephemeris radius; no physical objects',
-        events:'astronomical equinoxes and solstices shown as dashed directions'}};
+        events:'astronomical equinoxes and solstices shown as dashed directions'},
+      lunarCalendar:{enabled:Boolean(lunarData),visible:Boolean(lunarGroup?.visible),selection:lunarSelection,
+        startDate:lunarData?.startDate??null,endDate:lunarData?.endDate??null,durationDays:lunarData?.durationDays??null,
+        reference:'Earth-centered J2000 ecliptic; actual geocentric Moon ephemeris translated with Earth',
+        geometry:'diagrammatic exterior radial band from 107% to 119% of the Moon ephemeris radius; no physical objects',
+        phaseIntervals:'eight exact 45-degree lunar phase intervals over one actual lunation; open path, overlaps preserved',
+        alchemy:'editorial symbolic correspondences, not astronomical mechanisms'}};
   }
 
   function resize(){
@@ -547,6 +727,10 @@ export async function createSolarScene({container,engine,onSelect=()=>{},onCalen
       const calendarHits=raycaster.intersectObjects([...calendarObjects.values()].filter(object=>object.mesh).map(object=>object.mesh));
       if(calendarHits[0])chooseCalendar(calendarHits[0].object.userData.calendarKey);
     }
+    else if(lunarGroup?.visible){
+      const lunarHits=raycaster.intersectObjects([...lunarObjects.values()].map(object=>object.mesh));
+      if(lunarHits[0])chooseLunar(lunarHits[0].object.userData.lunarKey);
+    }
   }
   canvas.addEventListener('pointerdown',pointerDown);canvas.addEventListener('pointermove',pointerMove);
   canvas.addEventListener('pointerup',pointerUp);canvas.addEventListener('pointercancel',pointerCancel);
@@ -571,10 +755,12 @@ export async function createSolarScene({container,engine,onSelect=()=>{},onCalen
     delete container.dataset.solarView;delete container.dataset.solarSizeMode;
     delete container.dataset.solarOrbitEpoch;delete container.dataset.solarOrbitPending;
     delete container.dataset.solarCalendar;delete container.dataset.solarCalendarSelection;
+    delete container.dataset.solarLunarCalendar;delete container.dataset.solarLunarSelection;
+    delete container.dataset.solarLunarStart;delete container.dataset.solarLunarEnd;
   }
 
   resize();applyVisibility();fitView();
-  return {update,setView,selectBody,setEpoch,setCalendar,setCalendarSelection,getScaleInfo,resize,dispose,
+  return {update,setView,selectBody,setEpoch,setCalendar,setCalendarSelection,setLunarCalendar,setLunarCalendarSelection,getScaleInfo,resize,dispose,
     clearSelection(){selected=null;applyVisibility();invalidate();},
     setLabels(value){labelsEnabled=Boolean(value);invalidate();},
     setOrbits(value){orbitsEnabled=Boolean(value);applyVisibility();invalidate();},

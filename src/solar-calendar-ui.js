@@ -68,10 +68,10 @@ export function createSolarCalendarUI({root,onOpenCard=()=>{},onCloseCard=()=>{}
   selection=key;lastTrigger=trigger||lastTrigger;renderDetail();detail.hidden=false;updateButtons();onOpenCard(detail);
   if(focus){detail.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});detail.focus({preventScroll:true});}
  }
- function close(){
-  detail.hidden=true;selection=null;onCloseCard(detail);updateButtons();
+ function close({restoreFocus=true}={}){
+  detail.hidden=true;selection=null;onCloseCard(detail,{restoreFocus});updateButtons();
   const candidates=[lastTrigger,root.querySelector(`[data-calendar-select="${progress?.currentSectorKey}"]`)];
-  candidates.find(node=>node?.isConnected&&node.getClientRects().length)?.focus();
+  if(restoreFocus)candidates.find(node=>node?.isConnected&&node.getClientRects().length)?.focus();
  }
  function handleClick(event){
   const target=event.target.closest('button');if(!target)return;

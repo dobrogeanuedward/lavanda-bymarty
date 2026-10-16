@@ -1,0 +1,194 @@
+{
+  "new": {
+    "title": "La materia prima del buio",
+    "introduction": "Una pagina scura lascia esistere ciò che non ha ancora un nome. Nel racconto di Lavanda, disfare una forma apre domande sulle parti che la componevano.",
+    "alchemyNote": "Nigredo, il nero: in questa lettura editoriale di Lavanda, la Luna nuova accompagna immagini di oscurità e decomposizione delle forme.",
+    "question": "Quale forma possiamo interrogare senza doverla subito sostituire?",
+    "practice": "Disegna un oggetto come insieme di parti e lascia senza nome quella che conosci meno.",
+    "arcana": [13, 2],
+    "plants": [
+      {
+        "commonName": "Edera",
+        "scientificName": "Hedera helix",
+        "noteBotanicaBreve": "Rampicante sempreverde, aderisce alle superfici tramite radici aeree e presenta foglie di forme diverse.",
+        "editorialAssociation": "Scelta editoriale: il verde fitto diventa un margine opaco nel quale sostare con le domande.",
+        "sourceUrl": "https://www.rhs.org.uk/plants/43091/hedera-helix/details"
+      },
+      {
+        "commonName": "Rosmarino",
+        "scientificName": "Salvia rosmarinus",
+        "noteBotanicaBreve": "Arbusto sempreverde mediterraneo; le foglie lineari hanno una pagina inferiore chiara e feltrata.",
+        "editorialAssociation": "Per Lavanda, una presenza editoriale che conserva materia anche dentro una pagina scura.",
+        "sourceUrl": "https://www.rhs.org.uk/plants/384211/salvia-rosmarinus-ro/details"
+      }
+    ]
+  },
+  "waxing-crescent": {
+    "title": "Il primo bordo",
+    "introduction": "Un bordo sottile basta a suggerire una figura. La nostra Nigredo conserva l'indeterminato e prova a distinguere un gesto da una promessa.",
+    "alchemyNote": "Nigredo continua nel primo passaggio crescente del percorso Lavanda. La redazione prolunga il nero alchemico in una lettura che lascia alle forme il tempo di definirsi.",
+    "question": "Quanto spazio lasciamo a un inizio ancora incerto?",
+    "practice": "Traccia una linea incompleta e aggiungi tre possibili continuazioni, senza sceglierne una definitiva.",
+    "arcana": [1, 2],
+    "plants": [
+      {
+        "commonName": "Croco primaverile",
+        "scientificName": "Crocus vernus",
+        "noteBotanicaBreve": "Si sviluppa da un cormo, un fusto sotterraneo ingrossato; i fiori a coppa sono bianchi o viola.",
+        "editorialAssociation": "Associazione editoriale: una forma visibile invita a interrogare ciò che resta fuori dall'immagine.",
+        "sourceUrl": "https://www.rhs.org.uk/plants/29659/crocus-vernus/details"
+      },
+      {
+        "commonName": "Agrifoglio",
+        "scientificName": "Ilex aquifolium",
+        "noteBotanicaBreve": "Le foglie persistenti sono lucide e spesso spinose; i margini possono variare sullo stesso individuo.",
+        "editorialAssociation": "Scelta editoriale: il contorno della foglia suggerisce un confine che ammette differenze.",
+        "sourceUrl": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:83051-1/general-information"
+      }
+    ]
+  },
+  "first-quarter": {
+    "title": "Distinguere nella luce",
+    "introduction": "Chiarire significa dare alle differenze un contorno leggibile. Lavanda apre una pagina in cui osservazioni, ipotesi e desideri possono stare vicini senza confondersi.",
+    "alchemyNote": "Albedo, il bianco: Lavanda accosta al primo quarto una metafora di chiarificazione. L'abbinamento è una scelta editoriale contemporanea della rivista.",
+    "question": "Quale distinzione rende più onesto ciò che stiamo raccontando?",
+    "practice": "Rileggi una frase e sottolinea con segni diversi ciò che osservi, immagini e desideri.",
+    "arcana": [14, 17],
+    "plants": [
+      {
+        "commonName": "Bucaneve",
+        "scientificName": "Galanthus nivalis",
+        "noteBotanicaBreve": "Bulbosa con foglie strette e fiori bianchi penduli; i segmenti interni del fiore recano marcature verdi.",
+        "editorialAssociation": "Scelta editoriale: il bianco del fiore contiene dettagli che una prima occhiata può perdere.",
+        "sourceUrl": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:64496-1/general-information"
+      },
+      {
+        "commonName": "Primula comune",
+        "scientificName": "Primula vulgaris",
+        "noteBotanicaBreve": "Perenne a rosetta, con foglie corrugate; ogni fiore emerge su un proprio breve peduncolo.",
+        "editorialAssociation": "Per Lavanda, una figura editoriale del distinguere le parti senza separarle dalla relazione.",
+        "sourceUrl": "https://growwild.kew.org/plants/primrose"
+      }
+    ]
+  },
+  "waxing-gibbous": {
+    "title": "Lavorare sui dettagli",
+    "introduction": "La pagina si compone attraverso prove e correzioni. Il nostro racconto dell'Albedo lascia visibili le revisioni e riconosce il tempo necessario a leggere meglio.",
+    "alchemyNote": "Albedo accompagna anche la gibbosa crescente nella sequenza editoriale di Lavanda. La chiarificazione diventa una metafora del rileggere, distinguere e correggere.",
+    "question": "Quale dettaglio cambia la lettura dell'insieme?",
+    "practice": "Confronta due descrizioni della stessa pianta e annota una differenza di sguardo, conservando entrambe le fonti.",
+    "arcana": [9, 14],
+    "plants": [
+      {
+        "commonName": "Salvia comune",
+        "scientificName": "Salvia officinalis",
+        "noteBotanicaBreve": "Piccolo arbusto sempreverde con foglie aromatiche grigioverdi, oblunghe e segnate da una fitta rete di nervature.",
+        "editorialAssociation": "Scelta editoriale: una superficie apparentemente uniforme diventa un esercizio di attenzione ai dettagli.",
+        "sourceUrl": "https://www.rhs.org.uk/plants/16356/salvia-officinalis/details"
+      },
+      {
+        "commonName": "Bucaneve",
+        "scientificName": "Galanthus nivalis",
+        "noteBotanicaBreve": "Il fiore presenta sei segmenti bianchi; i tre interni sono più piccoli dei tre esterni.",
+        "editorialAssociation": "Associazione editoriale: la somiglianza delle parti non cancella le loro proporzioni differenti.",
+        "sourceUrl": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:64496-1/general-information"
+      }
+    ]
+  },
+  "full": {
+    "title": "Rendere visibile",
+    "introduction": "Una scena luminosa rende condivisibili forme e contraddizioni. Lavanda vi porta una domanda sulla coscienza: che cosa scegliamo di vedere insieme, e con quali parole.",
+    "alchemyNote": "Citrinitas, il giallo: Lavanda accosta alla Luna piena immagini di luce e presa di coscienza. L'abbinamento è una composizione editoriale originale della rivista.",
+    "question": "Che cosa diventa discutibile quando lo rendiamo visibile?",
+    "practice": "Descrivi una scena con parole concrete, poi aggiungi una domanda su ciò che l'inquadratura esclude.",
+    "arcana": [19, 20],
+    "plants": [
+      {
+        "commonName": "Narciso selvatico",
+        "scientificName": "Narcissus pseudonarcissus",
+        "noteBotanicaBreve": "Il fiore porta una corona centrale giallo intenso, circondata da segmenti generalmente di un giallo più chiaro.",
+        "editorialAssociation": "Scelta editoriale: due gialli vicini aprono una domanda sulle differenze dentro la luce.",
+        "sourceUrl": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:66177-1/general-information"
+      },
+      {
+        "commonName": "Lavanda vera",
+        "scientificName": "Lavandula angustifolia",
+        "noteBotanicaBreve": "Arbusto aromatico dalle foglie strette e persistenti; i fiori sono raccolti all'apice di steli sottili.",
+        "editorialAssociation": "Per Lavanda, il nome della rivista ritorna come materia editoriale concreta, oltre il simbolo.",
+        "sourceUrl": "https://www.kew.org/plants/english-lavender"
+      }
+    ]
+  },
+  "waning-gibbous": {
+    "title": "La luce passa di mano",
+    "introduction": "Una lettura prende vita anche quando cambia voce. Il racconto di Lavanda lascia circolare le domande e conserva le differenze fra chi le incontra.",
+    "alchemyNote": "Citrinitas prosegue nella gibbosa calante come immagine editoriale di una luce condivisa. Nel racconto di Lavanda, rendere qualcosa visibile permette anche di discuterlo insieme.",
+    "question": "Come condividere un'intuizione lasciando spazio al dissenso?",
+    "practice": "Riscrivi un'annotazione per un lettore che non conosce il contesto, lasciando riconoscibile un dubbio.",
+    "arcana": [12, 19],
+    "plants": [
+      {
+        "commonName": "Acero campestre",
+        "scientificName": "Acer campestre",
+        "noteBotanicaBreve": "Albero deciduo con foglie a cinque lobi arrotondati; forma i caratteristici frutti alati degli aceri.",
+        "editorialAssociation": "Scelta editoriale: l'ala del frutto diventa una figura del passaggio fra luoghi e letture.",
+        "sourceUrl": "https://www.rhs.org.uk/plants/166/acer-campestre/details"
+      },
+      {
+        "commonName": "Narciso selvatico",
+        "scientificName": "Narcissus pseudonarcissus",
+        "noteBotanicaBreve": "Pianta bulbosa perenne, con foglie nastriformi grigioverdi e un solo fiore per stelo fiorale.",
+        "editorialAssociation": "Associazione editoriale: tornare sulla stessa figura permette una lettura diversa, senza cancellare la precedente.",
+        "sourceUrl": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:66177-1/general-information"
+      }
+    ]
+  },
+  "last-quarter": {
+    "title": "Dare corpo alla relazione",
+    "introduction": "Una forma trova consistenza nelle relazioni che la sostengono. Lavanda porta il racconto verso materiali, gesti e responsabilità, lasciando leggibili le parti che restano diverse.",
+    "alchemyNote": "Rubedo, il rosso: Lavanda accosta all'ultimo quarto una metafora di integrazione e concretezza dei corpi. L'abbinamento è una scelta editoriale contemporanea della rivista.",
+    "question": "Quali relazioni rendono praticabile ciò che abbiamo immaginato?",
+    "practice": "Disegna una mappa di un progetto includendo i materiali, il tempo e il lavoro che lo sostengono.",
+    "arcana": [21, 8],
+    "plants": [
+      {
+        "commonName": "Rosa canina",
+        "scientificName": "Rosa canina",
+        "noteBotanicaBreve": "Dopo i fiori rosati sviluppa cinorrodi rossi e ovali; è un arbusto presente anche nelle siepi.",
+        "editorialAssociation": "Scelta editoriale: il rosso offre un appiglio visivo per tornare alla materia delle forme.",
+        "sourceUrl": "https://growwild.kew.org/blog/wild-roses-britain"
+      },
+      {
+        "commonName": "Rosmarino",
+        "scientificName": "Salvia rosmarinus",
+        "noteBotanicaBreve": "Arbusto mediterraneo sempreverde; il portamento varia da eretto a prostrato e le foglie sono strette.",
+        "editorialAssociation": "Per Lavanda, una presenza editoriale del quotidiano a cui restituire attenzione e tempo.",
+        "sourceUrl": "https://www.rhs.org.uk/plants/384211/salvia-rosmarinus-ro/details"
+      }
+    ]
+  },
+  "waning-crescent": {
+    "title": "Custodire senza chiudere",
+    "introduction": "Il cerchio si assottiglia e il quaderno conserva i suoi margini. Nel racconto di Lavanda, integrare comprende anche lasciare una domanda aperta al prossimo giro.",
+    "alchemyNote": "Rubedo accompagna la falce calante nella sequenza editoriale di Lavanda. Il rosso diventa qui una metafora di ciò che prendiamo in custodia, lasciando aperta la prossima lettura.",
+    "question": "Che cosa conservare senza trasformarlo in una forma obbligata?",
+    "practice": "Scegli una pagina del quaderno e aggiungi un margine vuoto per una futura rilettura.",
+    "arcana": [8, 9],
+    "plants": [
+      {
+        "commonName": "Agrifoglio",
+        "scientificName": "Ilex aquifolium",
+        "noteBotanicaBreve": "Sempreverde dalle foglie lucide; fiori maschili e femminili si trovano generalmente su individui separati.",
+        "editorialAssociation": "Scelta editoriale: custodire una forma lascia riconoscibili le relazioni da cui dipende.",
+        "sourceUrl": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:83051-1/general-information"
+      },
+      {
+        "commonName": "Lavanda vera",
+        "scientificName": "Lavandula angustifolia",
+        "noteBotanicaBreve": "Appartiene alle Lamiaceae, come salvia e rosmarino; la specie possiede foglie strette e sempreverdi.",
+        "editorialAssociation": "Associazione editoriale: il ritorno alla lavanda tiene aperta la parentela fra pagine differenti.",
+        "sourceUrl": "https://www.kew.org/plants/english-lavender"
+      }
+    ]
+  }
+}
