@@ -1,7 +1,7 @@
 """Build LAVANDA's original vector artwork. Standard library only.
 
-All outlines below were drawn for this project. No external font is needed by
-the logotype. Run from any directory to regenerate the SVG source assets.
+Emblem and icons are original. Lettering comes from the outlined TrashHand
+name in trashhand-wordmark.json; run generate-trashhand.py to update it.
 """
 
 from pathlib import Path
@@ -9,17 +9,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent / "public" / "brand-v1"
 ICON_ROOT = ROOT.parent / "icons"
 
-# Letterforms share a 100-unit cap height. The A counters and uneven strokes
-# establish the rhythm; the D is deliberately rounder than the triangular A/V.
-GLYPHS = {
-    "L": "M0 0H29V4H21V95H51Q59 95 65 78H69L66 100H0V96H8V4H0Z",
-    "A": "M0 100V96H7L41 0H47L82 96H90V100H57V96H65L55 69H22L12 96H24V100ZM24 64H53L38.5 23Z",
-    "V": "M0 0H34V4H25L50 77L76 4H65V0H92V4H83L48 102H42L8 4H0Z",
-    "N": "M0 100V96H9V4H0V0H26L80 75V4H69V0H98V4H89V100H81L18 12V96H30V100Z",
-    "D": "M0 0H40C76 0 96 17 96 49C96 81 76 100 40 100H0V96H9V4H0ZM22 5V95H37C66 95 81 80 81 49C81 19 67 5 37 5Z",
-}
-
-LETTERS = [("L", 0), ("A", 72), ("V", 159), ("A", 249), ("N", 342), ("D", 446), ("A", 545)]
+# The shared lettering changes only the name; the 01 emblem stays identical.
+import json
+LETTERING=json.loads((ROOT.parent.parent / "scripts" / "trashhand-wordmark.json").read_text())
 
 def mark(color="currentColor", center_color=None):
     center_color = center_color or color
@@ -29,7 +21,7 @@ def mark(color="currentColor", center_color=None):
 </g><circle cx="76" cy="75" r="7" fill="{center_color}"/>'''
 
 def wordmark(color="currentColor"):
-    return "\n".join(f'<path transform="translate({x} 0)" d="{GLYPHS[ch]}" fill="{color}" fill-rule="evenodd"/>' for ch, x in LETTERS)
+    return f'<path d="{LETTERING["path"]}" fill="{color}"/>'
 
 def svg(width, height, body, label, description):
     return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" role="img" aria-labelledby="title desc">
@@ -42,10 +34,10 @@ def write(name, body):
 
 for name, color in [("logo.svg", "#000000"), ("logo-inverse.svg", "#ffffff")]:
     body = f'<g transform="translate(6 9) scale(.88)">{mark(color)}</g>\n<g transform="translate(180 34)">{wordmark(color)}</g>'
-    write(name, svg(830, 160, body, "LAVANDA", "Marchio originale: due archi aperti e sfalsati attorno a un punto, accanto al logotipo LAVANDA disegnato a tracciati."))
+    write(name, svg(LETTERING["width"]+194, 160, body, "LAVANDA", "Due archi aperti e sfalsati attorno a un punto; nome Lavanda in TrashHand di Luce Avérous, convertito in tracciati."))
 
-write("wordmark.svg", svg(650, 120, f'<g transform="translate(7 9)">{wordmark("#000000")}</g>', "LAVANDA", "Logotipo LAVANDA originale, interamente a tracciati."))
-write("wordmark-inverse.svg", svg(650, 120, f'<g transform="translate(7 9)">{wordmark("#ffffff")}</g>', "LAVANDA", "Logotipo LAVANDA bianco, interamente a tracciati."))
+write("wordmark.svg", svg(LETTERING["width"]+14, 120, f'<g transform="translate(7 9)">{wordmark("#000000")}</g>', "LAVANDA", "Nome Lavanda in TrashHand di Luce Avérous, convertito in tracciati."))
+write("wordmark-inverse.svg", svg(LETTERING["width"]+14, 120, f'<g transform="translate(7 9)">{wordmark("#ffffff")}</g>', "LAVANDA", "Nome Lavanda in TrashHand di Luce Avérous, bianco a tracciati."))
 write("emblem.svg", svg(152, 150, mark("#000000"), "LAVANDA, ritorno al centro", "Segno contemporaneo originale composto da due archi aperti sfalsati e da un punto centrale."))
 write("emblem-inverse.svg", svg(152, 150, mark("#ffffff"), "LAVANDA, ritorno al centro", "Versione bianca del segno contemporaneo originale."))
 write("emblem-periwinkle.svg", svg(152, 150, mark("#000000", "#8093F1"), "LAVANDA, ritorno al centro", "Segno contemporaneo nero con punto centrale pervinca."))

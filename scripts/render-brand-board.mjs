@@ -12,7 +12,7 @@ const board=`<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1480" 
 <rect width="1800" height="1480" fill="#fff"/><g font-family="Arial,sans-serif" fill="#131116">
 <text x="80" y="65" font-size="23">LAVANDA / Identità visiva</text><text x="1720" y="65" font-size="23" text-anchor="end">02 — Dallo sketch al sistema</text><path d="M80 90H1720" stroke="#131116"/>
 <image href="${word}" x="80" y="150" width="1640" height="280"/>
-<text x="80" y="470" font-size="20">01 / IL LOGOTIPO</text><text x="1720" y="470" font-size="20" text-anchor="end">Lettere originali. Contrasto, ritmo, spazio.</text>
+<text x="80" y="470" font-size="20">01 / IL LOGOTIPO</text><text x="1720" y="470" font-size="20" text-anchor="end">TrashHand. Tratto manoscritto, ritmo, spazio.</text>
 <rect x="80" y="520" width="460" height="450" fill="#B58CFF"/><image href="${emblem}" x="206" y="595" width="208" height="230"/><text x="115" y="930" font-size="20">02 / IL SIMBOLO</text>
 <rect x="565" y="520" width="460" height="450" fill="#FFD600"/><image href="${frame}" x="595" y="555" width="400" height="300"/>
 <text x="795" y="715" font-size="22" text-anchor="middle" letter-spacing="3">LA BOTTEGA</text><text x="795" y="758" font-family="Georgia,serif" font-size="35" text-anchor="middle">della speziale</text>

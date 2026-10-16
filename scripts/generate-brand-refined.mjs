@@ -1,4 +1,4 @@
-import {mkdir,writeFile,cp,access} from 'node:fs/promises';
+import {mkdir,writeFile,cp,access,readFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 
@@ -7,29 +7,16 @@ const out=path.join(root,'public/brand');
 const archive=path.join(root,'docs/studies/sketch-translation');
 try{await access(archive);}catch{await mkdir(archive,{recursive:true});await cp(out,archive,{recursive:true});}
 await mkdir(out,{recursive:true});
-// A restrained, high-contrast custom alphabet. All letterforms are original paths.
-const letters={
- L:['M0 0H17V91H62V100H0Z',65],
- A:['M0 100 36 0H47L87 100H69L56 67H22L10 100ZM25 59H53L39 21Z',87],
- V:['M0 0H18L48 79 76 0H86L49 100H37Z',86],
- N:['M0 100V0H15L72 78V0H80V100H65L8 22V100Z',80],
- D:['M0 0H33C65 0 85 17 85 50S65 100 33 100H0ZM17 8V92H31C56 92 67 76 67 50S56 8 31 8Z',85]
-};
+// TrashHand by Luce Avérous, outlined for this name only.
+const lettering=JSON.parse(await readFile(path.join(root,'scripts/trashhand-wordmark.json'),'utf8'));
 function wordmark(color='#131116'){
- let cursor=0;let paths='';
- for(const [i,char]of [...'LAVANDA'].entries()){
-  const [d,width]=letters[char];
-  // Optical spacing, rather than equal tracking, at the triangular junctions.
-  const adjustments=[0,3,-7,-7,6,9,4];cursor+=adjustments[i];
-  paths+=`<path d="${d}" transform="translate(${cursor} 0)"/>`;cursor+=width;
- }
- return {body:`<g fill="${color}" fill-rule="evenodd">${paths}</g>`,width:cursor};
+ return {body:`<g fill="${color}"><path d="${lettering.path}"/></g>`,width:lettering.width};
 }
 function symbol(color='#131116',accent='#FF1685'){
  return `<g fill="none" stroke="${color}" stroke-linejoin="round"><path stroke-width="4.4" d="M108 31A58 58 0 1 0 111 104"/><path stroke-width="4.4" d="M46 27H76M50 28V56C50 68 32 79 32 98C32 123 94 123 94 98C94 79 72 68 72 56V28"/><path stroke-width="2.5" d="M40 98C55 91 73 108 86 98M52 18H70"/></g><circle cx="115" cy="87" r="4" fill="${accent||color}"/>`;
 }
 const svg=(w,h,body,title,desc)=>`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" role="img" aria-labelledby="t d"><title id="t">${title}</title><desc id="d">${desc}</desc>${body}</svg>\n`;
-async function save(name,w,h,body,title='Lavanda',desc='Identità Lavanda. Logotipo originale, senza insegna o testi accessori.'){
+async function save(name,w,h,body,title='Lavanda',desc=/^(?:logo|wordmark)/.test(name)?'Identità Lavanda. Nome in TrashHand di Luce Avérous, convertito in tracciati; simbolo e insegna indipendenti.':'Identità Lavanda. Logotipo originale, senza insegna o testi accessori.'){
  await writeFile(path.join(out,name),svg(w,h,body,title,desc));
 }
 for(const [suffix,color,accent]of [['','#131116','#FF1685'],['-inverse','#FFFFFF','#FF1685'],['-mono','#131116',null]]){

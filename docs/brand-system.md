@@ -6,7 +6,7 @@ La seconda direzione prende lo sketch di Martina come prima ricerca, non come di
 
 ## Tre livelli
 
-Il logotipo è disegnato a tracciati originali: lettere nette, contrasto controllato e spaziature ottiche. `wordmark.svg` contiene solo il nome; `logo.svg` unisce nome e simbolo per gli spazi orizzontali. Esistono versioni inverse e monocromatiche.
+Il nome usa TrashHand di Luce Avérous, come richiesto da Martina il 16 ottobre 2026. Il lettering manoscritto è convertito in tracciati SVG; la versione web contiene soltanto i caratteri del nome (WOFF2, circa 1,8 kB). `wordmark.svg` contiene solo il nome; `logo.svg` unisce nome e simbolo per gli spazi orizzontali. Esistono versioni inverse e monocromatiche.
 
 Il simbolo distilla boccetta e cerchio aperto in pochi tratti, senza lettering sovrapposto, effetti di schizzo o raddoppiamenti. Rimane leggibile come avatar e segno di chiusura. Sotto 32 px si usa la favicon semplificata.
 
@@ -29,7 +29,11 @@ Il footer ha una propria scena illustrata e un’insegna separata dal marchio. B
 - `public/brand/brand-sheet.html`: presentazione della seconda direzione.
 - `public/brand/identity-board.webp`: tavola del sistema; originale PNG in `output`.
 - `public/brand-v1`: prima direzione conservata.
-- `scripts/generate-brand-refined.mjs`: sorgente del sistema vettoriale senza dipendenze.
+- `scripts/generate-trashhand.py`: genera tracciati e sottoinsieme WOFF2 con FontTools[woff].
+- `scripts/trashhand-wordmark.json`: lettering vettoriale condiviso delle due direzioni.
+- `scripts/generate-brand-refined.mjs`: compone nome e simbolo nella seconda direzione.
 - `scripts/render-brand-board.mjs`: composizione della tavola con Sharp.
 
 Area libera consigliata: almeno un sesto dell’altezza del marchio. Minimi: logo orizzontale180 px; solo nome120 px; simbolo32 px. Non deformare le proporzioni o aggiungere ombre, bagliori e finiture tridimensionali. Le illustrazioni sono originali contemporanee, senza attribuzioni storiche inventate.
+
+Il carattere manoscritto si applica soltanto al nome usato come marchio (header, logotipo, footer e copertine). Payoff THE RIOT WITCH, simboli, insegna botanica e font editoriali rimangono invariati. Fonte del font: https://www.dafont.com/it/trashhand.font (100% Gratis); attribuzione e originale in `docs/font-sources/trashhand`.
