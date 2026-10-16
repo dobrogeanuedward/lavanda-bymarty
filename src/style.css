@@ -16,7 +16,8 @@ html[data-brand="02"]{--lilac:#b58cff;--magenta:#ff1685;--violet:#382096;--yello
 .brand-switch button{border:0;background:transparent;border-radius:50%;width:33px;height:33px;font-size:12px;transition:background .2s,color .2s}
 .brand-switch button[aria-pressed="true"]{background:#000;color:#fff}
 .brand-switch-status{position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden;white-space:nowrap}
-.header{gap:25px}.header nav{gap:26px}.header .about-link{white-space:nowrap}
+.header{gap:25px}.header nav{gap:26px}.header nav a,.header .about-link{white-space:nowrap}
+@media(min-width:1051px) and (max-width:1199px){.header .about-link{display:none}}
 @media(max-width:1050px){.header{flex-wrap:wrap}.header nav{order:4;flex-basis:100%;justify-content:center;padding-top:10px}.brand-switch{margin-left:auto}.header .about-link{display:none}}
 @media(max-width:720px){.header{gap:15px;min-height:78px}.header .menu-toggle{margin-left:0;order:3}.brand-switch{margin-left:auto}.brand-switch-label{display:none}.brand-switch button{width:28px;height:28px}.header nav{padding-top:0}.header.open nav{padding-top:20px}.brand-small{font-size:22px}}
 /* Long editorial pages are allowed to grow; no CMS text is clipped. */

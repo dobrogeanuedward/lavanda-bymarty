@@ -15,6 +15,7 @@
     "cms:seed": "node scripts/seed-cms.mjs"
   },
   "dependencies": {
-    "astronomy-engine": "2.1.19"
+    "astronomy-engine": "2.1.19",
+    "three": "0.186.1"
   }
 }

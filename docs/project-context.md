@@ -59,3 +59,13 @@ La ruota è ora interattiva: pianeti, dodici segni, Ascendente e Medio Cielo apr
 Selezione evidenziata sulla ruota e sugli aspetti connessi; Enter/Spazio e frecce per i controlli SVG, pulsanti HTML di almeno 44 px nell'elenco alternativo, selezione rapida da Sole/Luna/Ascendente e dalla tabella. Zoom 100–220% con scorrimento interno; vista ampia in dialog nativo, stessa istanza del grafico e stesso pannello, chiusura Escape, focus e posizione di lettura ripristinati. Il download rimane SVG statico.
 
 QA carta a 320/390/768/1024/1440 px e dialog a 320/390/768/1440: nessun overflow orizzontale della pagina, zoom confinato al grafico, titoli visibili sotto l'intestazione fissa. Verificati selezione da grafico/tastiera, Arcani espandibili, cambio selezione, ora ignota all'equinozio, chiusura/reset e console pulita. Controllate anche home/Atlante/shop/blog/fanzine a 320/390/768 e tutte le pagine della fanzine: layout già corretto. Suite completa: 170 passati, 2 skip opzionali; 26 test letture/SVG ripassati dopo le ultime finiture.
+
+## Osservatorio astronomico 3D — 16 ottobre 2026
+
+Aggiunto `/osservatorio/`, collegato da header, footer, home e carta natale. Mostra Sole, otto pianeti e Luna tramite Astronomy Engine 2.1.19 e Three.js 0.186.1, entrambi locali e fissati. Posizioni geometriche simultanee, eclittica J2000, distanze lineari in AU; nessuna orbita circolare inventata. Luna relativa alla Terra nella vista locale e Sole rispetto al baricentro in una finestra di dodici anni, distinta da un periodo orbitale. Il moto galattico non è rappresentato.
+
+Default tempo reale 1× UTC del dispositivo; selezione date 1900–2100, pausa/ripresa, accelerazioni fino a 30 giorni al secondo e Adesso. Dimensioni amplificate e dichiarate per la visibilità; opzione raggi fisici, sempre fisici nella vista Sole–baricentro. Superfici procedurali schematiche, poli/anelli orientati, luce dalla direzione solare con intensità diagrammatica. Nessuna rotazione quotidiana artificiale.
+
+Rotazione e zoom della camera, selezione dei corpi, schede con dati fisici e distanze aggiornate, tabella delle coordinate, viste dedicate e dialog espanso accessibile. Il modello funziona in WebGL 2; il fallback mantiene dati e schede. Nessun nuovo servizio remoto, asset fotografico o dato personale. Fonti e benchmark indipendenti JPL Horizons in `docs/solar-science.md`.
+
+QA del modello su Chrome e browser interno; layout a 320/390/768/844 orizzontale/1060/1440 px senza overflow della pagina, data UTC2000 verificata nelle coordinate, pausa stabile, modalità fisica e selezione dal grafico. Suite completa: 190 test passati, 0 fallimenti, 2 skip opzionali; build, 909 riferimenti e manifesto originale verificati.
