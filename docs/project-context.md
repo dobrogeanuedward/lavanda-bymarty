@@ -39,3 +39,15 @@ Per gli asset la destinazione richiesta è il bucket R2 DOGO `dogostudio`, con p
 ## Prossimo lavoro verificabile
 
 Completare il controllo del live editing, il confronto delle due identità su desktop e mobile e il deploy aggiornato. Attivare Supabase dedicato quando l’accesso di scrittura sarà disponibile, importare i materiali e verificare salvataggio, ruoli, media, pubblicazione e ritiro. Riprendere R2 con credenziali già esistenti o upload autorizzato, verificare gli oggetti e solo allora attivare la distribuzione CDN. Definire i prodotti dello shop con Martina prima di aprire gli acquisti.
+
+## Carta natale e Arcani — 16 ottobre 2026
+
+Aggiunta `/carta-natale/`, raggiungibile da header, footer, home e Atlante/Arcani. Il modulo usa data, ora e località selezionata; il calcolo avviene nel browser con Astronomy Engine 2.1.19 (MIT, versione fissata). Zodiaco tropicale, coordinate geocentriche apparenti, dieci corpi, Ascendente, Medio Cielo, case a segno intero, cinque aspetti principali e moto retrogrado. La ruota SVG conserva le longitudini nelle tacche e distanzia solo le etichette. Stampa/PDF tramite browser e download SVG; nessun salvataggio dei dati di nascita sul server o nel localStorage.
+
+`api/places.mjs` cerca nell'estratto GeoNames cities500 ospitato nel progetto: 236.192 località, archivio gzip circa 11,6 MiB, CC BY 4.0. Attribuzione nel sito e in `data/README.md`. Nessuna richiesta a geocodificatori esterni durante l'uso. Coordinate e fuso IANA possono essere confermati manualmente. Lo script di importazione è esplicito e non parte durante il build.
+
+Le ore inesistenti vengono rifiutate; quelle duplicate richiedono una scelta di offset. Senza ora: intervallo della giornata civile e segni possibili, niente Ascendente/case/aspetti. Le date odierne escludono istanti futuri; avviso storico prima del 1970. Il metodo usa il database dei fusi del dispositivo, da verificare per ricostruzioni storiche particolari.
+
+Ventidue studi illustrati SVG originali e schede italiane con domanda/pratica. Corrispondenze Golden Dawn verificate sulla tavola primaria di Benebell Wen, pp. 3–4, con numerazione RWS Forza VIII/Giustizia XI. Selezione editoriale Lavanda: segno Sole 3, Luna 2, Ascendente 2, complementi planetari Sole/Papessa 1; massimo cinque, deduplica e esclusione dei segni incerti. Il punteggio ordina i suggerimenti e non misura personalità o dominanti. Il sito distingue calcolo astronomico e linguaggio simbolico.
+
+Verifica: benchmark indipendenti Swiss/Moshier, geometria dell'orizzonte, DST Roma/New York/Lord Howe, ore storiche e cuspidi/stazioni; browser desktop/mobile, ricerca, schede, doppia ora, ora ignota e reset. Nessun servizio a pagamento o nuovo account, nessuna modifica a Supabase/R2 o al manifesto originale.

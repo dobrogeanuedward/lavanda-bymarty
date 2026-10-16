@@ -40,6 +40,9 @@
   "functions": {
     "api/site.mjs": {
       "includeFiles": "dist/**/*.html"
+    },
+    "api/places.mjs": {
+      "includeFiles": "data/places.json.gz"
     }
   },
   "rewrites": [
