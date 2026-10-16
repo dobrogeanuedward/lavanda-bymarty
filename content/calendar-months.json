@@ -1,0 +1,270 @@
+{
+  "january": {
+    "title": "Il verde che resta",
+    "introduction": "Gennaio apre un quaderno di presenze discrete. Per Lavanda, la pausa può essere una forma di attenzione sottratta alla fretta.",
+    "question": "A che cosa concediamo tempo senza chiedere un risultato?",
+    "practice": "Osserva una pianta sempreverde e disegna soltanto gli spazi vuoti tra le foglie.",
+    "plants": [
+      {
+        "commonName": "Rosmarino",
+        "scientificName": "Salvia rosmarinus",
+        "noteBotanicaBreve": "Arbusto sempreverde mediterraneo, con foglie strette e aromatiche; la pagina inferiore è più chiara.",
+        "editorialAssociation": "Nella lettura editoriale di Lavanda, accompagna la continuità dei gesti quotidiani.",
+        "sourceUrl": "https://www.rhs.org.uk/plants/384211/salvia-rosmarinus-ro/details"
+      },
+      {
+        "commonName": "Edera",
+        "scientificName": "Hedera helix",
+        "noteBotanicaBreve": "Rampicante sempreverde che aderisce con radici aeree; le foglie dei rami fioriferi sono meno lobate.",
+        "editorialAssociation": "Scelta editoriale: osservare il sostegno come relazione, anche quando resta sullo sfondo.",
+        "sourceUrl": "https://www.rhs.org.uk/plants/43091/hedera-helix/details"
+      }
+    ]
+  },
+  "february": {
+    "title": "La soglia minuta",
+    "introduction": "Febbraio invita a guardare vicino al suolo. Il nostro racconto cerca inizi piccoli, senza trasformarli in obblighi di rinascita.",
+    "question": "Quale cambiamento passa inosservato quando guardiamo soltanto lontano?",
+    "practice": "Disegna un dettaglio da una fotografia botanica, annotando che cosa non riesci ancora a distinguere.",
+    "seasonNote": "La comparsa dei fiori varia con luogo, quota e andamento dell'inverno.",
+    "plants": [
+      {
+        "commonName": "Bucaneve",
+        "scientificName": "Galanthus nivalis",
+        "noteBotanicaBreve": "Pianta bulbosa dalle foglie strette e dai fiori bianchi penduli, diffusa anche in Italia.",
+        "editorialAssociation": "Per Lavanda, una figura editoriale della presenza che non occupa tutto lo spazio.",
+        "sourceUrl": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:64496-1/general-information"
+      },
+      {
+        "commonName": "Croco primaverile",
+        "scientificName": "Crocus vernus",
+        "noteBotanicaBreve": "Cresce da un cormo, un fusto sotterraneo ingrossato; i fiori a coppa sono bianchi o viola.",
+        "editorialAssociation": "Associazione editoriale: dare un contorno visibile a ciò che comincia.",
+        "sourceUrl": "https://www.rhs.org.uk/plants/29659/crocus-vernus/details"
+      }
+    ]
+  },
+  "march": {
+    "title": "Prendere parola",
+    "introduction": "Marzo è una pagina di passaggi. Lavanda vi accosta forme vegetali e domande su chi trova spazio nel discorso comune.",
+    "question": "Chi parla, e chi deve ancora chiedere spazio?",
+    "practice": "Leggi una descrizione botanica e riscrivila distinguendo osservazione, metafora e opinione.",
+    "plants": [
+      {
+        "commonName": "Narciso selvatico",
+        "scientificName": "Narcissus pseudonarcissus",
+        "noteBotanicaBreve": "Bulbosa perenne con foglie nastriformi; il fiore porta una corona gialla a tromba, circondata da sei tepali.",
+        "editorialAssociation": "Scelta editoriale: una voce prende forma, senza diventare la voce di tutte.",
+        "sourceUrl": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:66177-1/general-information"
+      },
+      {
+        "commonName": "Primula comune",
+        "scientificName": "Primula vulgaris",
+        "noteBotanicaBreve": "Perenne a rosetta basale, con foglie segnate da nervature evidenti e fiori generalmente giallo pallido.",
+        "editorialAssociation": "Nella nostra lettura editoriale, il margine diventa un luogo da cui parlare.",
+        "sourceUrl": "https://www.rhs.org.uk/plants/13901/primula-vulgaris-pr-prim/details"
+      }
+    ]
+  },
+  "april": {
+    "title": "Nessuna forma sola",
+    "introduction": "Aprile offre al racconto una pluralità di contorni. Li osserviamo senza stabilire quale modo di apparire sia quello giusto.",
+    "question": "Quante differenze lasciamo esistere prima di cercare una regola?",
+    "practice": "Confronta due illustrazioni della stessa pianta e annota ciò che ciascuna rende visibile.",
+    "seasonNote": "Il riferimento primaverile è orientativo, non un calendario locale di fioritura.",
+    "plants": [
+      {
+        "commonName": "Primula comune",
+        "scientificName": "Primula vulgaris",
+        "noteBotanicaBreve": "I singoli fiori emergono dalla rosetta su brevi peduncoli; le foglie hanno una superficie corrugata.",
+        "editorialAssociation": "Scelta editoriale: vicinanza e differenza possono abitare la stessa pagina.",
+        "sourceUrl": "https://growwild.kew.org/plants/primrose"
+      },
+      {
+        "commonName": "Narciso selvatico",
+        "scientificName": "Narcissus pseudonarcissus",
+        "noteBotanicaBreve": "Ogni stelo fiorale porta un fiore; la corona centrale è generalmente più scura dei tepali esterni.",
+        "editorialAssociation": "Per Lavanda, un'immagine editoriale della differenza interna a una forma condivisa.",
+        "sourceUrl": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:66177-1/general-information"
+      }
+    ]
+  },
+  "may": {
+    "title": "Il margine fiorito",
+    "introduction": "Maggio porta il nostro sguardo alle siepi e ai confini. Il margine diventa una domanda su accesso, incontro e spazio comune.",
+    "question": "Quando un confine protegge, e quando esclude?",
+    "practice": "Osserva una siepe da un percorso pubblico e disegna le aperture che interrompono la linea.",
+    "plants": [
+      {
+        "commonName": "Rosa canina",
+        "scientificName": "Rosa canina",
+        "noteBotanicaBreve": "Arbusto delle siepi dai fiori rosati; più avanti compaiono cinorrodi rossi di forma ovale.",
+        "editorialAssociation": "Associazione editoriale: interrogare i confini attraverso ciò che li attraversa.",
+        "sourceUrl": "https://growwild.kew.org/blog/wild-roses-britain"
+      },
+      {
+        "commonName": "Salvia comune",
+        "scientificName": "Salvia officinalis",
+        "noteBotanicaBreve": "Arbusto sempreverde con foglie aromatiche grigioverdi; i fiori possono assumere tonalità blu e viola.",
+        "editorialAssociation": "Scelta editoriale: la trama di una foglia apre una ricerca sulle superfici.",
+        "sourceUrl": "https://www.rhs.org.uk/herbs/sage/grow-your-own"
+      }
+    ]
+  },
+  "june": {
+    "title": "Lavanda, al plurale",
+    "introduction": "Giugno ci riporta alla lavanda. Materia e colore diventano occasioni di studio, con significati aperti.",
+    "question": "Che cosa cambia quando un nome diventa un luogo comune?",
+    "practice": "Disegna una spiga osservata in una fonte botanica, poi inventa un titolo che non la descriva.",
+    "seasonNote": "Riferimento all'estate boreale: la fioritura cambia con specie, varietà, clima e località.",
+    "plants": [
+      {
+        "commonName": "Lavanda vera",
+        "scientificName": "Lavandula angustifolia",
+        "noteBotanicaBreve": "Arbusto aromatico sempreverde, con foglie strette e fiori solitamente viola riuniti all'apice di steli sottili.",
+        "editorialAssociation": "Scelta editoriale: il nome della rivista torna alla concretezza della pianta.",
+        "sourceUrl": "https://www.kew.org/plants/english-lavender"
+      },
+      {
+        "commonName": "Rosa canina",
+        "scientificName": "Rosa canina",
+        "noteBotanicaBreve": "È un arbusto della famiglia delle Rosaceae, presente spontaneamente in Italia e in altre regioni europee.",
+        "editorialAssociation": "Per Lavanda, una figura editoriale di relazioni oltre il giardino privato.",
+        "sourceUrl": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:731955-1"
+      }
+    ]
+  },
+  "july": {
+    "title": "La luce e la pausa",
+    "introduction": "Luglio è il capitolo delle esposizioni e delle soste. Il tempo libero entra nella pagina come questione materiale, distribuita in modi diseguali.",
+    "question": "Chi può fermarsi, e chi rende possibile quella pausa?",
+    "practice": "Annota tre ombre dello stesso luogo in momenti diversi, senza trasformare l'esercizio in un compito.",
+    "plants": [
+      {
+        "commonName": "Lavanda vera",
+        "scientificName": "Lavandula angustifolia",
+        "noteBotanicaBreve": "Appartiene alle Lamiaceae, la stessa famiglia di salvia e rosmarino; possiede foglie strette e persistenti.",
+        "editorialAssociation": "Associazione editoriale: ritrovare parentele sotto colori e nomi differenti.",
+        "sourceUrl": "https://www.kew.org/plants/english-lavender"
+      },
+      {
+        "commonName": "Salvia comune",
+        "scientificName": "Salvia officinalis",
+        "noteBotanicaBreve": "Le foglie della specie sono morbide e grigioverdi; esistono cultivar con colori del fogliame diversi.",
+        "editorialAssociation": "Nella nostra lettura editoriale, la varietà incrina l'idea di un'estate uguale per tutte.",
+        "sourceUrl": "https://www.rhs.org.uk/herbs/sage/grow-your-own"
+      }
+    ]
+  },
+  "august": {
+    "title": "Un tempo non disponibile",
+    "introduction": "Agosto apre uno spazio nel ritmo della pagina. Lavanda lo dedica a ciò che esiste anche senza essere continuamente mostrato.",
+    "question": "Che cosa lasciamo fuori dalla richiesta di essere sempre presenti?",
+    "practice": "Osserva una foglia senza fotografarla e prova a descriverla più tardi, includendo le dimenticanze.",
+    "plants": [
+      {
+        "commonName": "Rosmarino",
+        "scientificName": "Salvia rosmarinus",
+        "noteBotanicaBreve": "Le foglie lineari rimangono sui rami durante l'anno; l'arbusto può avere portamento eretto oppure prostrato.",
+        "editorialAssociation": "Scelta editoriale: la continuità non richiede una presenza sempre spettacolare.",
+        "sourceUrl": "https://www.rhs.org.uk/plants/384211/salvia-rosmarinus-ro/details"
+      },
+      {
+        "commonName": "Salvia comune",
+        "scientificName": "Salvia officinalis",
+        "noteBotanicaBreve": "È una pianta legnosa sempreverde; il grigioverde delle foglie distingue la specie da molte cultivar variegate.",
+        "editorialAssociation": "Per Lavanda, una scelta editoriale sulla dignità delle forme ordinarie.",
+        "sourceUrl": "https://www.rhs.org.uk/herbs/sage/grow-your-own"
+      }
+    ]
+  },
+  "september": {
+    "title": "Tornare con differenza",
+    "introduction": "Settembre riapre il quaderno senza azzerare le pagine precedenti. Il ritorno diventa una domanda su quali ritmi desideriamo riprendere insieme.",
+    "question": "Quale abitudine merita di tornare, e quale di cambiare?",
+    "practice": "Rileggi una vecchia annotazione e aggiungi una domanda, lasciando visibile la prima versione.",
+    "plants": [
+      {
+        "commonName": "Edera",
+        "scientificName": "Hedera helix",
+        "noteBotanicaBreve": "Sui rami maturi produce gruppi di piccoli fiori gialloverdi; le foglie differiscono da quelle dei rami rampicanti.",
+        "editorialAssociation": "Scelta editoriale: ritornare può significare assumere una forma diversa.",
+        "sourceUrl": "https://www.rhs.org.uk/plants/43091/hedera-helix/details"
+      },
+      {
+        "commonName": "Rosmarino",
+        "scientificName": "Salvia rosmarinus",
+        "noteBotanicaBreve": "Il nome botanico attuale è Salvia rosmarinus; Rosmarinus officinalis resta un sinonimo presente in molti testi.",
+        "editorialAssociation": "Associazione editoriale: cambiare nome invita a rileggere anche gli archivi.",
+        "sourceUrl": "https://www.rhs.org.uk/plants/384211/salvia-rosmarinus-ro/details"
+      }
+    ]
+  },
+  "october": {
+    "title": "Lasciare traccia",
+    "introduction": "Ottobre raccoglie forme che cambiano contorno. Guardare una trasformazione significa anche discutere che cosa conserviamo e a chi affidiamo la memoria.",
+    "question": "Quali tracce conserviamo, e quali storie restano senza archivio?",
+    "practice": "Disegna una foglia ancora sul ramo e una già a terra, osservando senza raccoglierle.",
+    "seasonNote": "Colorazione e caduta delle foglie variano con luogo, clima e anno.",
+    "plants": [
+      {
+        "commonName": "Acero campestre",
+        "scientificName": "Acer campestre",
+        "noteBotanicaBreve": "Albero deciduo con foglie a cinque lobi arrotondati; il fogliame può assumere colori gialli o rossi in autunno.",
+        "editorialAssociation": "Scelta editoriale: il cambiamento lascia forme leggibili, senza consegnare un unico significato.",
+        "sourceUrl": "https://www.rhs.org.uk/plants/166/acer-campestre/details"
+      },
+      {
+        "commonName": "Edera",
+        "scientificName": "Hedera helix",
+        "noteBotanicaBreve": "È sempreverde; le infiorescenze gialloverdi dei rami maturi costituiscono una risorsa per diversi insetti.",
+        "editorialAssociation": "Per Lavanda, un'immagine editoriale di tempi diversi che convivono.",
+        "sourceUrl": "https://www.rhs.org.uk/plants/43091/hedera-helix/details"
+      }
+    ]
+  },
+  "november": {
+    "title": "L'archivio dei margini",
+    "introduction": "Novembre dedica la pagina alle strutture e agli intervalli. Nel nostro racconto, rendere visibile ciò che sostiene è un gesto di attenzione politica.",
+    "question": "Che cosa sostiene la scena mentre guardiamo altrove?",
+    "practice": "Disegna la sagoma di un albero, lasciando che siano i vuoti a organizzare il foglio.",
+    "plants": [
+      {
+        "commonName": "Acero campestre",
+        "scientificName": "Acer campestre",
+        "noteBotanicaBreve": "Le foglie sono caduche; i piccoli fiori lasciano frutti alati, caratteristici del genere Acer.",
+        "editorialAssociation": "Associazione editoriale: una struttura resta leggibile anche quando cambia il suo rivestimento.",
+        "sourceUrl": "https://www.rhs.org.uk/plants/166/acer-campestre/details"
+      },
+      {
+        "commonName": "Agrifoglio",
+        "scientificName": "Ilex aquifolium",
+        "noteBotanicaBreve": "Sempreverde con foglie lucide, spesso spinose; sugli stessi individui, alcune foglie possono avere margini quasi lisci.",
+        "editorialAssociation": "Scelta editoriale: osservare le eccezioni dentro un'immagine che credevamo familiare.",
+        "sourceUrl": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:83051-1/general-information"
+      }
+    ]
+  },
+  "december": {
+    "title": "Il cerchio resta aperto",
+    "introduction": "Dicembre chiude il quaderno lasciando spazio ai ritorni. La continuità, per Lavanda, comprende interruzioni, memoria e possibilità di dissentire.",
+    "question": "Che cosa vogliamo portare nel prossimo giro, insieme?",
+    "practice": "Rileggi tre pagine dell'anno e scrivi un indice provvisorio fatto soltanto di domande.",
+    "plants": [
+      {
+        "commonName": "Agrifoglio",
+        "scientificName": "Ilex aquifolium",
+        "noteBotanicaBreve": "È un arbusto o albero sempreverde; generalmente fiori maschili e femminili si trovano su individui separati.",
+        "editorialAssociation": "Scelta editoriale: la persistenza diventa una domanda su ciò che scegliamo di custodire.",
+        "sourceUrl": "https://powo.science.kew.org/taxon/urn:lsid:ipni.org:names:83051-1/general-information"
+      },
+      {
+        "commonName": "Rosmarino",
+        "scientificName": "Salvia rosmarinus",
+        "noteBotanicaBreve": "Arbusto mediterraneo della famiglia delle Lamiaceae, con foglie persistenti e piccoli fiori di colore variabile.",
+        "editorialAssociation": "Per Lavanda, un ritorno editoriale al quotidiano, senza cancellare il viaggio.",
+        "sourceUrl": "https://www.rhs.org.uk/plants/384211/salvia-rosmarinus-ro/details"
+      }
+    ]
+  }
+}

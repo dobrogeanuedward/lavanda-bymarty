@@ -2,8 +2,10 @@ import {AU_KM, SOLAR_BODIES, sampleOrbitAsync} from './solar-engine.js';
 
 // Coordinates always remain linear. Views change the camera, never distances.
 export const SOLAR_UNITS_PER_AU = 8;
-const VIEWS = Object.freeze({inner:1.75,all:32,'earth-moon':0.0042,'sun-barycenter':0.025});
+const VIEWS = Object.freeze({calendar:1.25,inner:1.75,all:32,'earth-moon':0.0042,'sun-barycenter':0.025});
 const INNER = new Set(['sun','mercury','venus','earth','mars']);
+const CALENDAR_COLORS=Object.freeze({spring:'#9dcc93',summer:'#ecc879',autumn:'#df9d7e',winter:'#a6a7e7'});
+const CALENDAR_MONTHS=Object.freeze(['january','february','march','april','may','june','july','august','september','october','november','december']);
 const VISIBLE_RADII_AU = Object.freeze({
   inner:{sun:.07,mercury:.019,venus:.026,earth:.026,mars:.022,jupiter:.06,saturn:.055,uranus:.04,neptune:.04,moon:.012},
   all:{sun:.12,mercury:.07,venus:.08,earth:.08,mars:.07,jupiter:.23,saturn:.21,uranus:.17,neptune:.17,moon:.05},
@@ -23,7 +25,48 @@ export function solarDisplayRadius(body,view='inner',mode='visible'){
   const physical=body.radiusKm/AU_KM*SOLAR_UNITS_PER_AU;
   if(!Number.isFinite(physical)||physical<=0)throw new SolarSceneError('INVALID_RADIUS','Il raggio del corpo non è valido.');
   if(mode==='real'||view==='sun-barycenter')return physical;
-  return (VISIBLE_RADII_AU[view]?.[body.key]??body.radiusKm/AU_KM)*SOLAR_UNITS_PER_AU;
+  return (VISIBLE_RADII_AU[view==='calendar'?'inner':view]?.[body.key]??body.radiusKm/AU_KM)*SOLAR_UNITS_PER_AU;
+}
+
+// This radial band is an annotation around the actual ephemeris path, never a
+// substitute orbit. Its thickness and labels do not represent physical bodies.
+export function normalizeSolarCalendar(data){
+  if(data===null)return null;
+  const invalid=()=>{throw new SolarSceneError('INVALID_CALENDAR','Il calendario richiede dodici settori e posizioni terrestri eclittiche J2000.');};
+  if(!data||data.frame!=='J2000 ecliptic'||!Array.isArray(data.sectors)||data.sectors.length!==12)invalid();
+  const seen=new Set(),seasons=new Map();
+  const sectors=data.sectors.map((sector,index)=>{
+    if(!sector||sector.index!==index||sector.key!==CALENDAR_MONTHS[index]||seen.has(sector.key))invalid();
+    seen.add(sector.key);
+    const label=sector.monthLabel??sector.name??sector.label;
+    if(typeof label!=='string'||!label.trim()||label.length>80||!Object.hasOwn(CALENDAR_COLORS,sector.seasonKey)||typeof sector.seasonLabel!=='string'||!sector.seasonLabel.trim()||sector.seasonLabel.length>80)invalid();
+    if(!Array.isArray(sector.points)||sector.points.length<2||sector.points.length>512)invalid();
+    const points=sector.points.map(point=>{
+      toScenePosition(point,1);
+      const radius=Math.hypot(...point);
+      if(radius<.5||radius>2)invalid();
+      return [...point];
+    });
+    const phaseLabel=typeof sector.phaseLabel==='string'?sector.phaseLabel.slice(0,120):'';
+    const normalized={key:sector.key,index,label,phaseLabel,seasonKey:sector.seasonKey,seasonLabel:sector.seasonLabel,points,
+      labelPosition:points[Math.floor((points.length-1)/2)].map(value=>value*1.19)};
+    const group=seasons.get(sector.seasonKey)??[];group.push(normalized);seasons.set(sector.seasonKey,group);
+    return normalized;
+  });
+  if(seasons.size!==4||[...seasons.values()].some(group=>group.length!==3))invalid();
+  if(data.astronomicalEvents!==undefined&&!Array.isArray(data.astronomicalEvents))invalid();
+  const events=(data.astronomicalEvents??[]).map(event=>{
+    if(!event||typeof event.key!=='string'||!/^[a-z-]{2,40}$/.test(event.key)||typeof event.label!=='string'||!event.label.trim()||event.label.length>120)invalid();
+    toScenePosition(event.position,1);
+    return {key:`event:${event.key}`,label:event.label,position:[...event.position],labelPosition:event.position.map(value=>value*1.07)};
+  });
+  if(events.length>4||new Set(events.map(event=>event.key)).size!==events.length)invalid();
+  return {frame:data.frame,year:data.year??data.cycleYear,startDate:data.startDate,endDate:data.endDate,sectors,
+    astronomicalEvents:events,seasons:[...seasons.entries()].map(([key,group])=>{
+      // The December–January–February season wraps through the civil year.
+      const middle=group.some(sector=>sector.index===11)&&group.some(sector=>sector.index===0)?group.find(sector=>sector.index===0):group[1];
+      return {key,label:group[0].seasonLabel,labelPosition:middle.points[Math.floor((middle.points.length-1)/2)].map(value=>value*1.43)};
+    })};
 }
 
 /**
@@ -33,7 +76,7 @@ export function solarDisplayRadius(body,view='inner',mode='visible'){
  * No surface is a photograph or geographic map; colors are procedural diagrams.
  * Only IAU pole directions orient surfaces/rings. No invented daily spin is applied.
  */
-export async function createSolarScene({container,engine,onSelect=()=>{},onError=()=>{}}={}){
+export async function createSolarScene({container,engine,onSelect=()=>{},onCalendarSelect=()=>{},onError=()=>{}}={}){
   const notifiedCodes=new Set();
   const report=error=>{const code=error.code||error.name;if(!notifiedCodes.has(code)){notifiedCodes.add(code);onError(error);}};
   if(!container?.ownerDocument||typeof container.appendChild!=='function'){
@@ -57,6 +100,8 @@ export async function createSolarScene({container,engine,onSelect=()=>{},onError
   let labelsEnabled=true,orbitsEnabled=true,onscreen=true,raf=0,lastRender=0;
   let width=1,height=1,followKey=null,epochController=null,epochVersion=0,orbitEpoch=null;
   let pendingEpoch=null;
+  let calendarData=null,calendarSelection=null,calendarGroup=null;
+  const calendarObjects=new Map();
   const scene=new THREE.Scene();scene.background=new THREE.Color('#0b0a15');
   const camera=new THREE.PerspectiveCamera(42,1,.00001,2000);
   renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -83,6 +128,10 @@ export async function createSolarScene({container,engine,onSelect=()=>{},onError
   const overlay=document.createElement('div');overlay.className='solar-label-layer solar-scene-labels';
   Object.assign(overlay.style,{position:'absolute',inset:'0',overflow:'hidden',pointerEvents:'none'});
   container.append(canvas,overlay);
+  const calendarOverlay=document.createElement('div');calendarOverlay.className='solar-calendar-label-layer';
+  Object.assign(calendarOverlay.style,{position:'absolute',inset:'0',pointerEvents:'none'});
+  calendarOverlay.setAttribute('aria-label','Calendario stagionale lungo l’orbita terrestre');
+  overlay.append(calendarOverlay);
   container.dataset.solarOrbitPending='false';
   const bodyObjects=new Map(),orbitObjects=new Map();
   const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2();
@@ -150,8 +199,117 @@ export async function createSolarScene({container,engine,onSelect=()=>{},onError
     report(cause instanceof SolarSceneError?cause:new SolarSceneError('RENDER_FAILED','La vista 3D si è interrotta. Le posizioni restano disponibili nella tabella.',cause));
   }
 
+  function removeCalendar(){
+    if(calendarGroup){
+      scene.remove(calendarGroup);
+      calendarGroup.traverse(object=>{object.geometry?.dispose();object.material?.dispose();});
+      calendarGroup=null;
+    }
+    calendarOverlay.replaceChildren();calendarObjects.clear();
+  }
+
+  function chooseCalendar(key){
+    if(setCalendarSelection(key))onCalendarSelect(key);
+  }
+
+  function makeCalendarLabel(item,kind='month'){
+    const label=document.createElement('button');label.type='button';
+    label.className=`solar-calendar-label${kind==='event'?' solar-calendar-event-label':kind==='season'?' solar-calendar-season-label':''}`;
+    label.dataset.calendarSector=item.key;label.dataset.season=item.seasonKey??'';
+    label.textContent=item.label;label.setAttribute('aria-pressed','false');
+    label.setAttribute('aria-label',kind==='month'?`${item.label}, ${item.seasonLabel}${item.phaseLabel?`, ${item.phaseLabel}`:''}. Esplora il calendario.`:`${item.label}, esplora il calendario.`);
+    Object.assign(label.style,{position:'absolute',pointerEvents:'auto',whiteSpace:kind==='event'?'normal':'nowrap',maxWidth:'150px',touchAction:'none'});
+    const record={...item,kind,label,offset:{x:0,y:0},drag:null,suppressClick:false};
+    label.addEventListener('click',event=>{if(record.suppressClick&&event.detail!==0){record.suppressClick=false;return;}record.suppressClick=false;chooseCalendar(item.key);});
+    label.addEventListener('pointerdown',event=>{
+      if(event.button!==0)return;
+      record.drag={id:event.pointerId,x:event.clientX,y:event.clientY,start:{...record.offset},moved:false};
+      label.setPointerCapture(event.pointerId);
+    });
+    label.addEventListener('pointermove',event=>{
+      const drag=record.drag;if(!drag||drag.id!==event.pointerId)return;
+      const dx=event.clientX-drag.x,dy=event.clientY-drag.y;
+      if(Math.hypot(dx,dy)>6)drag.moved=true;
+      if(drag.moved){record.offset={x:drag.start.x+dx,y:drag.start.y+dy};invalidate();}
+    });
+    const finish=event=>{if(record.drag?.id===event.pointerId){record.suppressClick=record.drag.moved;record.drag=null;}};
+    label.addEventListener('pointerup',finish);label.addEventListener('pointercancel',finish);
+    calendarOverlay.append(label);calendarObjects.set(item.key,record);return record;
+  }
+
+  function setCalendar(data){
+    if(disposed||failed)return false;
+    const normalized=normalizeSolarCalendar(data);
+    removeCalendar();calendarData=normalized;
+    if(!normalized){setCalendarSelection(null);applyVisibility();invalidate();return true;}
+    calendarGroup=new THREE.Group();calendarGroup.name='solar-calendar';
+    calendarGroup.userData={annotation:true,frame:normalized.frame,origin:'sun',description:'Civil months along the actual Earth ephemeris; meteorological seasons. Decorative radial band, not physical objects.'};
+    for(const sector of normalized.sectors){
+      const vertices=[],indices=[];
+      sector.points.forEach((point,index)=>{
+        vertices.push(...toScenePosition(point.map(value=>value*.88)),...toScenePosition(point.map(value=>value*1.12)));
+        if(index<sector.points.length-1){const base=index*2;indices.push(base,base+1,base+2,base+1,base+3,base+2);}
+      });
+      const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geometry.setIndex(indices);geometry.computeVertexNormals();
+      const color=CALENDAR_COLORS[sector.seasonKey];
+      const mesh=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial({color,side:THREE.DoubleSide,transparent:true,opacity:.15,depthWrite:false}));
+      mesh.userData.calendarKey=sector.key;calendarGroup.add(mesh);
+      const boundary=[new THREE.Vector3(),new THREE.Vector3(...toScenePosition(sector.points[0].map(value=>value*1.12)))];
+      const radial=new THREE.Line(new THREE.BufferGeometry().setFromPoints(boundary),new THREE.LineBasicMaterial({color,transparent:true,opacity:.24,depthWrite:false}));calendarGroup.add(radial);
+      const orbit=new THREE.Line(new THREE.BufferGeometry().setFromPoints(sector.points.map(point=>new THREE.Vector3(...toScenePosition(point)))),new THREE.LineBasicMaterial({color,transparent:true,opacity:.78,depthWrite:false}));calendarGroup.add(orbit);
+      Object.assign(makeCalendarLabel(sector),{mesh});
+    }
+    for(const event of normalized.astronomicalEvents){
+      const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3(...toScenePosition(event.position.map(value=>value*1.09)))]),new THREE.LineDashedMaterial({color:'#f5ecff',transparent:true,opacity:.6,dashSize:.07*SOLAR_UNITS_PER_AU,gapSize:.045*SOLAR_UNITS_PER_AU,depthWrite:false}));
+      line.computeLineDistances();calendarGroup.add(line);Object.assign(makeCalendarLabel(event,'event'),{line});
+    }
+    for(const season of normalized.seasons){
+      makeCalendarLabel({...season,key:`season:${season.key}`,seasonKey:season.key},'season');
+    }
+    scene.add(calendarGroup);
+    if(!calendarObjects.has(calendarSelection))calendarSelection=null;
+    setCalendarSelection(calendarSelection);applyVisibility();invalidate();return true;
+  }
+
+  function setCalendarSelection(key){
+    if(key!==null&&!calendarObjects.has(key))return false;
+    calendarSelection=key;
+    for(const [itemKey,object]of calendarObjects){
+      const active=key===itemKey;
+      object.label.setAttribute('aria-pressed',String(active));object.label.classList.toggle('is-selected',active);
+      if(object.mesh)object.mesh.material.opacity=(active||key===`season:${object.seasonKey}`)?.36:.15;
+      if(object.line)object.line.material.opacity=active?1:.6;
+    }
+    if(key===null)delete container.dataset.solarCalendarSelection;else container.dataset.solarCalendarSelection=key;
+    invalidate();return true;
+  }
+
+  function placeCalendarLabels(occupied,selectedOnly=false){
+    const visible=Boolean(calendarGroup?.visible);
+    calendarOverlay.hidden=!visible;
+    if(!visible)return;
+    const priority={season:0,event:1,month:2};
+    const candidates=[...calendarObjects.values()].filter(object=>(object.key===calendarSelection)===selectedOnly).sort((a,b)=>priority[a.kind]-priority[b.kind]);
+    for(const object of candidates){
+      const {label}=object,projected=new THREE.Vector3(...toScenePosition(object.labelPosition)).project(camera);
+      label.hidden=!labelsEnabled||projected.z<=-1||projected.z>=1||Math.abs(projected.x)>1.12||Math.abs(projected.y)>1.12;
+      if(label.hidden)continue;
+      const labelWidth=label.offsetWidth||80,labelHeight=label.offsetHeight||28;
+      const x=(projected.x+1)*width/2+(object.offset?.x??0),y=(1-projected.y)*height/2+(object.offset?.y??0);
+      const left=Math.max(4,Math.min(width-labelWidth-4,x-labelWidth/2));
+      let top=Math.max(4,Math.min(height-labelHeight-4,y-labelHeight/2)),found=false;
+      for(let attempt=0;attempt<9;attempt++){
+        const next=Math.max(4,Math.min(height-labelHeight-4,top+Math.ceil(attempt/2)*(labelHeight+4)*(attempt%2?-1:1)));
+        if(!occupied.some(rect=>left<rect.right+3&&left+labelWidth>rect.left-3&&next<rect.bottom+3&&next+labelHeight>rect.top-3)){top=next;found=true;break;}
+      }
+      if(!found){label.hidden=true;continue;}
+      occupied.push({left,right:left+labelWidth,top,bottom:top+labelHeight});label.style.left=`${left}px`;label.style.top=`${top}px`;
+    }
+  }
+
   function placeLabels(){
     const occupied=[];
+    placeCalendarLabels(occupied,true);
     const cameraRight=new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion);
     const candidates=[...bodyObjects.values()].sort((a,b)=>(b.body.key===selected?1:0)-(a.body.key===selected?1:0));
     for(const object of candidates){
@@ -186,6 +344,7 @@ export async function createSolarScene({container,engine,onSelect=()=>{},onError
     }
     baryLabel.hidden=!labelsEnabled||view!=='sun-barycenter';
     if(!baryLabel.hidden){const projected=new THREE.Vector3().project(camera);baryLabel.style.left=`${(projected.x+1)*width/2+7}px`;baryLabel.style.top=`${(1-projected.y)*height/2+7}px`;}
+    placeCalendarLabels(occupied);
   }
 
   function draw(timestamp){
@@ -199,15 +358,19 @@ export async function createSolarScene({container,engine,onSelect=()=>{},onError
   }
 
   function applyVisibility(){
+    const innerView=view==='inner'||view==='calendar';
     for(const [key,object]of bodyObjects){
-      object.group.visible=view==='sun-barycenter'?key==='sun':view==='earth-moon'?key==='earth'||key==='moon':view==='inner'?INNER.has(key):key!=='moon';
+      object.group.visible=view==='sun-barycenter'?key==='sun':view==='earth-moon'?key==='earth'||key==='moon':innerView?INNER.has(key):key!=='moon';
       object.label.setAttribute('aria-pressed',String(selected===key));
       object.label.classList.toggle('is-selected',selected===key);
       object.radius=solarDisplayRadius(object.body,view,sizeMode);object.group.scale.setScalar(object.radius);
       object.label.dataset.radiusMultiplier=String(object.radius/(object.body.radiusKm/AU_KM*SOLAR_UNITS_PER_AU));
     }
-    for(const [key,object]of orbitObjects)object.visible=orbitsEnabled&&(view==='sun-barycenter'?key==='sun':view==='earth-moon'?key==='moon':view==='inner'?INNER.has(key)&&key!=='sun':key!=='moon'&&key!=='sun');
+    for(const [key,object]of orbitObjects)object.visible=orbitsEnabled&&!(calendarData&&key==='earth')&&(view==='sun-barycenter'?key==='sun':view==='earth-moon'?key==='moon':innerView?INNER.has(key)&&key!=='sun':key!=='moon'&&key!=='sun');
     barycenter.visible=view==='sun-barycenter';
+    if(calendarGroup)calendarGroup.visible=innerView||view==='all';
+    calendarOverlay.hidden=!calendarGroup?.visible;
+    container.dataset.solarCalendar=calendarData?'true':'false';
     container.dataset.solarView=view;container.dataset.solarSizeMode=sizeMode;
   }
 
@@ -343,7 +506,11 @@ export async function createSolarScene({container,engine,onSelect=()=>{},onError
       bodies,radiusMultipliers:Object.fromEntries(bodies.map(body=>[body.key,body.enhancementFactor])),
       visibleEnhancementRange:{minimum:Math.min(...visibleFactors),maximum:Math.max(...visibleFactors)},orbitEpoch,
       surfaces:'procedural schematic',lighting:'solar direction; diagrammatic intensity, not photometry',
-      spin:'not simulated',rings:'main C/B/A ring bounds; IAU north pole orientation'};
+      spin:'not simulated',rings:'main C/B/A ring bounds; IAU north pole orientation',
+      calendar:{enabled:Boolean(calendarData),visible:Boolean(calendarGroup?.visible),year:calendarData?.year??null,selection:calendarSelection,
+        reference:'sun-centered; J2000 ecliptic; actual Earth ephemeris',seasons:'meteorological',
+        geometry:'diagrammatic radial band from 88% to 112% of the Earth ephemeris radius; no physical objects',
+        events:'astronomical equinoxes and solstices shown as dashed directions'}};
   }
 
   function resize(){
@@ -376,6 +543,10 @@ export async function createSolarScene({container,engine,onSelect=()=>{},onError
     raycaster.setFromCamera(pointer,camera);
     const hits=raycaster.intersectObjects([...bodyObjects.values()].filter(object=>object.group.visible).map(object=>object.sphere));
     if(hits[0])choose(hits[0].object.userData.bodyKey,true);
+    else if(calendarGroup?.visible){
+      const calendarHits=raycaster.intersectObjects([...calendarObjects.values()].filter(object=>object.mesh).map(object=>object.mesh));
+      if(calendarHits[0])chooseCalendar(calendarHits[0].object.userData.calendarKey);
+    }
   }
   canvas.addEventListener('pointerdown',pointerDown);canvas.addEventListener('pointermove',pointerMove);
   canvas.addEventListener('pointerup',pointerUp);canvas.addEventListener('pointercancel',pointerCancel);
@@ -399,10 +570,11 @@ export async function createSolarScene({container,engine,onSelect=()=>{},onError
     if(container.style.position==='relative'&&oldPosition!=='relative')container.style.position=oldPosition;
     delete container.dataset.solarView;delete container.dataset.solarSizeMode;
     delete container.dataset.solarOrbitEpoch;delete container.dataset.solarOrbitPending;
+    delete container.dataset.solarCalendar;delete container.dataset.solarCalendarSelection;
   }
 
   resize();applyVisibility();fitView();
-  return {update,setView,selectBody,setEpoch,getScaleInfo,resize,dispose,
+  return {update,setView,selectBody,setEpoch,setCalendar,setCalendarSelection,getScaleInfo,resize,dispose,
     clearSelection(){selected=null;applyVisibility();invalidate();},
     setLabels(value){labelsEnabled=Boolean(value);invalidate();},
     setOrbits(value){orbitsEnabled=Boolean(value);applyVisibility();invalidate();},

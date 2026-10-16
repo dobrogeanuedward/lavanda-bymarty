@@ -1,15 +1,17 @@
 import {SOLAR_BODIES,AU_KM,computeSolarSystem} from './solar-engine.js';
 import {SolarClock,parseUTCDateTime} from './solar-clock.js';
 import {createSolarScene} from './solar-scene.js';
+import {createSolarCalendarUI} from './solar-calendar-ui.js';
 
 const $=selector=>document.querySelector(selector);
 const e=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number=(value,digits=2)=>new Intl.NumberFormat('it-IT',{maximumFractionDigits:digits}).format(value);
 const timeFormat=new Intl.DateTimeFormat('it-IT',{timeZone:'UTC',year:'numeric',month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'});
 const rateNames={1:'1 secondo/s',60:'1 minuto/s',3600:'1 ora/s',86400:'1 giorno/s',2592000:'30 giorni/s'};
-const viewNames={inner:'Riferimento eliocentrico · Pianeti interni',all:'Riferimento eliocentrico · Sistema completo','earth-moon':'Terra e Luna · Traiettoria relativa alla Terra','sun-barycenter':'Riferimento baricentrico · Traiettoria del Sole su 12 anni'};
-let scene=null,engine=null,state=null,selected='earth',view='inner',raf=0,lastCompute=-Infinity,lastReadout=-Infinity,lastEpoch=0,epochVersion=0,orbitBusy=false,disposed=false;
+const viewNames={calendar:'Calendario terrestre · Riferimento eliocentrico',inner:'Riferimento eliocentrico · Pianeti interni',all:'Riferimento eliocentrico · Sistema completo','earth-moon':'Terra e Luna · Traiettoria relativa alla Terra','sun-barycenter':'Riferimento baricentrico · Traiettoria del Sole su 12 anni'};
+let scene=null,engine=null,state=null,selected='earth',view='calendar',raf=0,lastCompute=-Infinity,lastReadout=-Infinity,lastEpoch=0,epochVersion=0,orbitBusy=false,disposed=false;
 const clock=new SolarClock();
+const calendarUI=$('#solar-calendar')?createSolarCalendarUI({root:$('#solar-calendar'),onOpenCard:dockCalendarCard,onCloseCard:undockCalendarCard,onVisitDate:visitCalendarDate,onFocusCalendar:focusCalendarView}):null;
 
 function text(selector,value){const node=$(selector);if(node&&node.textContent!==String(value))node.textContent=value;}
 function announce(message){text('#solar-status',message);}
@@ -60,7 +62,7 @@ function setView(next){
  if(!Object.hasOwn(viewNames,next))return;view=next;
  if(view==='sun-barycenter')selected='sun';
  else if(view==='earth-moon'&&!['earth','moon'].includes(selected))selected='earth';
- else if(view==='inner'&&!['sun','mercury','venus','earth','mars'].includes(selected))selected='earth';
+ else if(['calendar','inner'].includes(view)&&!['sun','mercury','venus','earth','mars'].includes(selected))selected='earth';
  else if(view==='all'&&selected==='moon')selected='earth';
  scene?.setView(view);scene?.selectBody(selected);syncView();renderBody();
 }
@@ -94,14 +96,14 @@ async function refreshOrbits(date,{force=false}={}){
  }finally{if(version===epochVersion)orbitBusy=false;}
 }
 function compute(){
- if(!engine)return;const snapshot=clock.snapshot();state=computeSolarSystem(snapshot.date,{engine});scene?.update(state);updateTime(snapshot);updateReadouts();
+ if(!engine)return;const snapshot=clock.snapshot();state=computeSolarSystem(snapshot.date,{engine});scene?.update(state);updateTime(snapshot);calendarUI?.update(snapshot.date,engine);updateReadouts();
  if(scene&&Math.abs(snapshot.date.getTime()-lastEpoch)>15*86400000)refreshOrbits(snapshot.date).catch(sceneError);
 }
 function frame(tick){
  raf=0;if(disposed||document.visibilityState==='hidden')return;
  const snapshot=clock.snapshot(),interval=snapshot.rate>1&&!snapshot.paused?1000/30:250;
  if(tick-lastCompute>=interval){
-  try{state=computeSolarSystem(snapshot.date,{engine});scene?.update(state);updateTime(snapshot);
+  try{state=computeSolarSystem(snapshot.date,{engine});scene?.update(state);updateTime(snapshot);calendarUI?.update(snapshot.date,engine);
    if(tick-lastReadout>=1000){updateReadouts();lastReadout=tick;}
    if(scene&&Math.abs(snapshot.date.getTime()-lastEpoch)>15*86400000)refreshOrbits(snapshot.date).catch(sceneError);
   }catch(error){announce(error.message);}
@@ -111,17 +113,31 @@ function frame(tick){
 }
 function start(){if(engine&&!disposed&&!raf&&document.visibilityState!=='hidden')raf=requestAnimationFrame(frame);}
 function syncDateInput(){$('#solar-date').value=clock.snapshot().date.toISOString().slice(0,16);}
-let expandedDialog=null,scenePlaceholder=null;
+let expandedDialog=null,scenePlaceholder=null,calendarCardPlaceholder=null;
+function visitCalendarDate(date){clock.seek(date);clock.setPaused(true);syncDateInput();compute();refreshOrbits(date,{force:true}).catch(sceneError);announce('L’osservazione è in pausa alla data scelta. “Adesso” torna al tempo reale.');}
+function focusCalendarView(next){setView(next);scene?.resetView();}
+function dockCalendarCard(detail){
+ if(!expandedDialog?.open)return;
+ const slot=expandedDialog.querySelector('.solar-calendar-dialog-slot');
+ if(!calendarCardPlaceholder){calendarCardPlaceholder=document.createComment('calendar-card-position');detail.before(calendarCardPlaceholder);}
+ slot.append(detail);slot.hidden=false;scene?.resize();
+}
+function undockCalendarCard(detail){
+ if(calendarCardPlaceholder){calendarCardPlaceholder.replaceWith(detail);calendarCardPlaceholder=null;}
+ const slot=expandedDialog?.querySelector('.solar-calendar-dialog-slot');if(slot)slot.hidden=true;scene?.resize();
+ if(expandedDialog?.open)$('#solar-fullscreen').focus({preventScroll:true});
+}
 function fullscreenLabel(){const expanded=!!expandedDialog?.open;text('#solar-fullscreen',expanded?'Chiudi vista ×':'Espandi ↗');$('#solar-fullscreen').setAttribute('aria-label',expanded?'Chiudi il modello a schermo intero':'Apri il modello a schermo intero');}
 function expandScene(){
  const shell=$('.solar-scene-shell');
  if(expandedDialog?.open){expandedDialog.close();return;}
  if(!expandedDialog){
   expandedDialog=document.createElement('dialog');expandedDialog.className='solar-dialog';expandedDialog.setAttribute('aria-label','Sistema solare — vista espansa');
+  expandedDialog.innerHTML='<div class="solar-dialog-layout"><div class="solar-dialog-scene-slot"></div><aside class="solar-calendar-dialog-slot" aria-label="Scheda del calendario" hidden></aside></div>';
   document.body.append(expandedDialog);
-  expandedDialog.addEventListener('close',()=>{scenePlaceholder.replaceWith(shell);scenePlaceholder=null;fullscreenLabel();scene?.resize();$('#solar-fullscreen').focus({preventScroll:true});});
+  expandedDialog.addEventListener('close',()=>{if(calendarUI)undockCalendarCard(calendarUI.detail);scenePlaceholder.replaceWith(shell);scenePlaceholder=null;fullscreenLabel();scene?.resize();$('#solar-fullscreen').focus({preventScroll:true});});
  }
- scenePlaceholder=document.createComment('solar-scene-position');shell.before(scenePlaceholder);expandedDialog.append(shell);expandedDialog.showModal();fullscreenLabel();scene?.resize();$('#solar-fullscreen').focus({preventScroll:true});
+ scenePlaceholder=document.createComment('solar-scene-position');shell.before(scenePlaceholder);expandedDialog.querySelector('.solar-dialog-scene-slot').append(shell);expandedDialog.showModal();if(calendarUI&&!calendarUI.detail.hidden)dockCalendarCard(calendarUI.detail);fullscreenLabel();scene?.resize();$('#solar-fullscreen').focus({preventScroll:true});
 }
 
 if($('#solar-stage')){
@@ -147,9 +163,9 @@ if($('#solar-stage')){
  window.addEventListener('pageshow',event=>{if(event.persisted&&!disposed){compute();scene?.resize();start();}});
  try{
   engine=await loadAstronomy();if(disposed)throw Error('Pagina chiusa.');compute();start();
-  scene=await createSolarScene({container:$('#solar-stage'),engine,onSelect:key=>selectBody(key),onError:sceneError});
+  scene=await createSolarScene({container:$('#solar-stage'),engine,onSelect:key=>selectBody(key),onCalendarSelect:key=>calendarUI?.select(key,{trigger:$('#solar-stage').querySelector(`[data-calendar-sector="${CSS.escape(key)}"]`)}),onError:sceneError});
   if(disposed){scene.dispose();throw Error('Pagina chiusa.');}
-  scene.update(state);setView(view);scene.setSizeMode($('#solar-size').value);scene.setLabels($('#solar-labels').checked);scene.setOrbits($('#solar-orbits').checked);
+  scene.update(state);calendarUI?.setScene(scene);setView(view);scene.setSizeMode($('#solar-size').value);scene.setLabels($('#solar-labels').checked);scene.setOrbits($('#solar-orbits').checked);
   await refreshOrbits(clock.snapshot().date,{force:true});$('#solar-loading').hidden=true;renderBody();updateScale();
  }catch(error){if(!disposed)sceneError(error);}
 }
